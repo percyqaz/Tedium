@@ -9,6 +9,7 @@
     <Compile Include="Tag.fs" />
     <Compile Include="TodoItem.fs" />
     <Compile Include="TodoItemParser.fs" />
+    <Compile Include="TodoItemWriter.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

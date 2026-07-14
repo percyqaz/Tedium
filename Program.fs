@@ -1,7 +1,7 @@
-﻿open Tedium
+open Tedium
 
-let p = TodoItemParser()
-let text = """
+let text =
+    """
 design philosophy: 
 I find it difficult to prioritise in absolute terms
 so I would rather prioritise relatively
@@ -13,7 +13,6 @@ x marks a completed todo item
 * @ followed by [a-z0-9-_:]+ indicates tags
 * @work tags can appear anywhere in an item @date:2026-07-14 but get auto-formatted to the end
 * uppercase tags reserved as shorthands e.g. @TODAY as shorthand for @date:2026-07-14
-
 j and k to navigate up/down
 l to scope into an item, viewing only its text and subtasks
 h to unscope out of an item
@@ -23,6 +22,12 @@ feature: reorder things up/down with alt+k and alt+j
 feature: calendar view
 feature: select tasks, place them under a task
 """
+
+let p = TodoItemParser()
+
 for line in text.Split("\n") do
     p.ParseLine(line)
-printfn "%A" (p.ToTodoFile("C:/todo.txt"))
+
+let w = TodoItemWriter()
+w.WriteFileContents(p.ToTodoFile("todo.txt"))
+printfn "%O" w
