@@ -95,6 +95,12 @@ module InputBuffer =
             Commands.dispatch_internal_command(state, command)
             state.Buffer <- state.Buffer.Substring(end_of_command + ENTER.Length)
 
+        elif state.Buffer.EndsWith(ENTER) then
+            let end_of_text = state.Buffer.IndexOf(ENTER)
+            let text = state.Buffer.Substring(0, end_of_text)
+            Commands.send_text(state, text)
+            state.Buffer <- state.Buffer.Substring(end_of_text + ENTER.Length)
+
         if previous_buffer <> state.Buffer then
             if state.Buffer.Length > ARBITRARY_BUFFER_LIMIT && previous_buffer.Length <= ARBITRARY_BUFFER_LIMIT then
                 printfn "%s" state.Buffer

@@ -35,6 +35,11 @@ type TodoElement =
 
     override this.ToString() : string = this.Guts.ToString()
 
+    member this.AddTag(tag: Tag) : unit =
+        match this.Guts with
+        | Item item -> item.Tags <- item.Tags.Add(tag)
+        | _ -> ()
+
     member this.MarkDone() : unit =
         match this.Guts with
         | Item item -> item.Done <- true
