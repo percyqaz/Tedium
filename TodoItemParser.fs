@@ -70,6 +70,13 @@ type TodoItemParser() =
             stack <- List.tail stack
             indent <- List.head stack
 
+    member this.ParseLines(lines: string seq) : unit = Seq.iter this.ParseLine lines
+
+    static member ParseLines(lines: string seq) : TodoItemParser =
+        let parser = TodoItemParser()
+        parser.ParseLines(lines)
+        parser
+
     member this.ToTodoFile(path: string) : TodoFile =
         let base_level = List.last stack
         { Path = path; FrontMatter = base_level.FrontMatter; Items = base_level.Items }

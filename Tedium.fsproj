@@ -11,9 +11,10 @@
     <Compile Include="TodoItemParser.fs" />
     <Compile Include="TodoItemWriter.fs" />
     <Compile Include="State.fs" />
-    <Compile Include="Commands.fs" />
     <Compile Include="ScreenBuffer.fs" />
     <Compile Include="View.fs" />
+    <Compile Include="Operations.fs" />
+    <Compile Include="Commands.fs" />
     <Compile Include="InputBuffer.fs" />
     <Compile Include="InputThread.fs" />
     <Compile Include="Interactive.fs" />

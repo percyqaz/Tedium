@@ -21,7 +21,7 @@ module Interactive =
             | true, input ->
                 InputBuffer.add_input_to_buffer(input, state)
                 InputBuffer.dispatch_keybindings(state)
-            | false, _ -> ()
+            | false, _ -> () // todo: autosave if dirty
 
         Console.Write("\u001b[?1049l")
 

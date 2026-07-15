@@ -35,9 +35,9 @@ type ScreenBuffer(height: int) =
     let mutable cursor = 0
     let mutable scroll_position = 0
 
-    member val ScrollOff = 6
-    member val LinesBelow = 1
-    member val Height = height
+    member val ScrollOff = 6 with get, set
+    member val LinesBelow = 1 with get, set
+    member val Height = height with get, set
 
     member this.CursorHere() : unit = cursor <- lines.Count
 
@@ -50,7 +50,7 @@ type ScreenBuffer(height: int) =
         this.Line(line)
 
     member this.Draw() : unit =
-        let sb = StringBuilder().Append("\u001b[H")
+        let sb = StringBuilder()
 
         let top_of_requested_view = max 0 (cursor - this.ScrollOff)
 

@@ -1,4 +1,4 @@
-﻿namespace Tedium
+namespace Tedium
 
 open System
 open System.IO
@@ -12,15 +12,18 @@ type InputThread() =
 
     let thread =
         Thread(fun () ->
-            while true do
-                ignore(key_in.WaitOne())
+            try
+                while true do
+                    ignore(key_in.WaitOne())
 
-                try
-                    let key = Console.ReadKey(true)
-                    lock LOCK_OBJ (fun () -> read_key <- key)
-                    ignore(key_out.Set())
-                with _ ->
-                    ()
+                    try
+                        let key = Console.ReadKey(true)
+                        lock LOCK_OBJ (fun () -> read_key <- key)
+                        ignore(key_out.Set())
+                    with :? InvalidOperationException ->
+                        ()
+            with :? ThreadInterruptedException ->
+                ()
         )
 
     member this.Start() : unit =

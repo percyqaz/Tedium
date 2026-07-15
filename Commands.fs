@@ -1,6 +1,7 @@
 namespace Tedium
 
 open System
+open Tedium.Operations
 
 module Commands =
 
@@ -27,4 +28,6 @@ module Commands =
         | "down" -> navigate_down(state)
         | "mark_done" -> mark_done(state)
         | "unmark_done" -> unmark_done(state)
+        | "describe_root" -> edit_fm_file(state.List)
+        | "describe" -> edit_fm_item(state.Selected)
         | _ -> ()

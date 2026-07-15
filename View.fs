@@ -6,6 +6,15 @@ type View(state: State) =
 
     let view = ScreenBuffer(Console.BufferHeight - 1)
 
+    member this.RenderFrontMatter() : unit =
+        let inline front_matter (text: string) : string = text.ForeColor(0x666666)
+
+        for fm in state.List.FrontMatter |> Seq.truncate 2 do
+            Console.WriteLine(front_matter(fm).ClearRestOfLine())
+
+        if state.List.FrontMatter.Count >= 3 then
+            Console.WriteLine(front_matter("...").ClearRestOfLine())
+
     member this.RenderList() : unit =
         let inline front_matter (text: string, is_selected: bool) : string =
             let colored = text.ForeColor(0x666666)
@@ -31,9 +40,6 @@ type View(state: State) =
             let line = sprintf "  %s %s %s" done_marker (item.Text.ForeColor(0xAAAAAA)) tags
             if is_selected then line.BackColor(0x333311) else line
 
-        for fm in state.List.FrontMatter do
-            view.Line(front_matter(fm, false))
-
         for item in state.List.Items do
             let is_selected = state.Selected = item
 
@@ -52,6 +58,9 @@ type View(state: State) =
                 view.Line(front_matter(sprintf "  +%i more" (item.Items.Count - 2), is_selected))
 
     member this.Redraw() : unit =
+        Console.Write("\u001b[H")
+        this.RenderFrontMatter()
+        view.Height <- Console.BufferHeight - 1 - min state.List.FrontMatter.Count 3
         this.RenderList()
         view.Draw()
         Console.Write(state.Buffer.ForeColor(0x88FF88).Bold().ClearRestOfLine())
