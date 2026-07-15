@@ -51,8 +51,12 @@ module Commands =
         match Tag.TryParse(text) with
         | true, tag -> state.Selected.AddTag(tag)
         | false, _ ->
+
+        if text <> "" then
             let data = TodoItemParser.ParseLines([ text ]).ToTodoFile("")
             let index = state.List.Items.IndexOf(state.Selected)
             state.List.Items.InsertRange(index + 1, data.Items)
             state.List.FrontMatter.AddRange(data.FrontMatter)
-            state.Selected <- data.Items.[data.Items.Count - 1]
+
+            if data.Items.Count > 0 then
+                state.Selected <- data.Items.[data.Items.Count - 1]

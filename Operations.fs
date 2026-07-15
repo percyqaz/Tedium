@@ -7,7 +7,6 @@ open System.IO
 module Operations =
 
     let private dispatch_shell_command (command: string) : unit =
-
         let shell, args =
             if OperatingSystem.IsWindows() then "cmd.exe", "/c " + command else "/bin/sh", "-c \"" + command + "\""
 
@@ -21,7 +20,7 @@ module Operations =
     let private edit_with_vim (lines: string seq) : string seq =
         let tmp = Path.GetTempFileName().Replace("\\", "/")
         File.WriteAllLines(tmp, lines)
-        dispatch_shell_command("vim '" + tmp + "'")
+        dispatch_shell_command("vim -c '+normal! gg$' -c 'set statusline=%=' '" + tmp + "'")
         File.ReadAllLines(tmp)
 
     let edit_fm (element: TodoElement) : unit =

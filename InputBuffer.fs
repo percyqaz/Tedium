@@ -68,10 +68,10 @@ module InputBuffer =
             "r", ":rename" + ENTER
             "d", ":desc" + ENTER
             "D", ":gdesc" + ENTER
-            special("Left"), "h"
+            special("A-j"), ":move_down" + ENTER
+            special("A-k"), ":move_up" + ENTER
             special("Down"), "j"
             special("Up"), "k"
-            special("Right"), "l"
             ESC, ":exit" + ENTER
         ]
 
@@ -95,7 +95,7 @@ module InputBuffer =
             Commands.dispatch_internal_command(state, command)
             state.Buffer <- state.Buffer.Substring(end_of_command + ENTER.Length)
 
-        elif state.Buffer.EndsWith(ENTER) then
+        elif not(state.Buffer.StartsWith(ENTER)) && state.Buffer.EndsWith(ENTER) then
             let end_of_text = state.Buffer.IndexOf(ENTER)
             let text = state.Buffer.Substring(0, end_of_text)
             Commands.send_text(state, text)
