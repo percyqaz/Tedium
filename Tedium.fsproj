@@ -10,6 +10,13 @@
     <Compile Include="TodoItem.fs" />
     <Compile Include="TodoItemParser.fs" />
     <Compile Include="TodoItemWriter.fs" />
+    <Compile Include="State.fs" />
+    <Compile Include="Commands.fs" />
+    <Compile Include="ScreenBuffer.fs" />
+    <Compile Include="View.fs" />
+    <Compile Include="InputBuffer.fs" />
+    <Compile Include="InputThread.fs" />
+    <Compile Include="Interactive.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

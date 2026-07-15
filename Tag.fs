@@ -21,7 +21,7 @@ type Tag =
         if value.StartsWith('@') then
             let value = value.Substring(1)
 
-            if String.forall is_acceptable_character value then
+            if value.Length > 0 && String.forall is_acceptable_character value then
                 let split = value.Split(':', 2)
                 out <- { Label = split.[0]; Value = if split.Length > 1 then ValueSome(split.[1]) else ValueNone }
                 true

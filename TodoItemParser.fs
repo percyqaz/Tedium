@@ -49,7 +49,7 @@ type TodoItemParser() =
                     }
 
                 indent.Items.Add(item)
-                stack <- Indentation.Create(indent.Level + 1, item) :: stack
+                stack <- Indentation.Create(indent.Level + 2, item) :: stack
                 true
             else
                 false
