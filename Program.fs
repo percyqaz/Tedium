@@ -36,5 +36,5 @@ let file = p.ToTodoFile("todo.txt")
 Interactive.loop(file)
 
 let w = TodoItemWriter()
-w.WriteFileContents(file)
+w.WriteElementContents(file)
 printfn "%O" w

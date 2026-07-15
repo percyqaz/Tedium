@@ -7,13 +7,13 @@ type Indentation =
     {
         Level: int
         FrontMatter: ResizeArray<string>
-        Items: ResizeArray<TodoItem>
+        Items: ResizeArray<TodoElement>
     }
 
     static member Create(level: int) : Indentation =
         { Level = level; FrontMatter = ResizeArray(); Items = ResizeArray() }
 
-    static member Create(level: int, item: TodoItem) =
+    static member Create(level: int, item: TodoElement) =
         { Level = level; FrontMatter = item.FrontMatter; Items = item.Items }
 
 
@@ -41,9 +41,7 @@ type TodoItemParser() =
             if text.Length > 0 then
                 let item =
                     {
-                        Text = text.ToString().TrimEnd(' ')
-                        Done = is_done
-                        Tags = tags
+                        Guts = Item { Text = text.ToString().TrimEnd(' '); Done = is_done; Tags = tags }
                         FrontMatter = ResizeArray()
                         Items = ResizeArray()
                     }
@@ -77,6 +75,6 @@ type TodoItemParser() =
         parser.ParseLines(lines)
         parser
 
-    member this.ToTodoFile(path: string) : TodoFile =
+    member this.ToTodoFile(path: string) : TodoElement =
         let base_level = List.last stack
-        { Path = path; FrontMatter = base_level.FrontMatter; Items = base_level.Items }
+        { Guts = File { Path = path }; FrontMatter = base_level.FrontMatter; Items = base_level.Items }

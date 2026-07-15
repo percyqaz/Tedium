@@ -1,13 +1,8 @@
 namespace Tedium
 
 open System
-open Tedium.Operations
 
 module Commands =
-
-    let mark_done (state: State) : unit = state.Selected.Done <- true
-
-    let unmark_done (state: State) : unit = state.Selected.Done <- false
 
     let navigate_up (state: State) : unit =
         let index = state.List.Items.IndexOf(state.Selected)
@@ -26,8 +21,9 @@ module Commands =
         | "exit" -> state.Running <- false
         | "up" -> navigate_up(state)
         | "down" -> navigate_down(state)
-        | "mark_done" -> mark_done(state)
-        | "unmark_done" -> unmark_done(state)
-        | "describe_root" -> edit_fm_file(state.List)
-        | "describe" -> edit_fm_item(state.Selected)
+        | "mark_done" -> state.Selected.MarkDone()
+        | "unmark_done" -> state.Selected.UnmarkDone()
+        | "desc_fm_r" -> Operations.edit_fm(state.List)
+        | "desc_fm" -> Operations.edit_fm(state.Selected)
+        | "rename" -> Operations.edit_name(state.List, state.Selected)
         | _ -> ()

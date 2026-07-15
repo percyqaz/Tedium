@@ -4,24 +4,35 @@ type TodoItemWriter() =
 
     let output = ResizeArray<string>()
 
-    member private this.WriteItem(indent: int, item: TodoItem) : unit =
+    member private this.WriteElement(indent: int, item: TodoElement) : unit =
         let padding = String.replicate indent " "
         output.Add(padding + item.ToString())
-        this.WriteFileContents(indent + 1, item.FrontMatter, item.Items)
+        this.WriteElementContents(indent + 1, item)
 
-    member private this.WriteFileContents(indent: int, front_matter: string seq, items: TodoItem seq) : unit =
-        let padding = String.replicate indent " "
+    member private this.WriteElementContents(indent: int, element: TodoElement) : unit =
+        if not(element.Guts.IsFile) then
+            let padding = String.replicate indent " "
 
-        for f in front_matter do
-            output.Add(padding + f)
+            for f in element.FrontMatter do
+                output.Add(padding + f)
 
-        for item in items do
-            this.WriteItem(indent, item)
+            for item in element.Items do
+                this.WriteElement(indent, item)
 
-    member this.WriteFileContents(front_matter: string seq, items: TodoItem seq) : unit =
-        this.WriteFileContents(0, front_matter, items)
+    member this.WriteElement(element: TodoElement) : unit = this.WriteElement(0, element)
 
-    member this.WriteFileContents(file: TodoFile) : unit =
-        this.WriteFileContents(file.FrontMatter, file.Items)
+    member this.WriteElementContents(element: TodoElement) : unit = this.WriteElementContents(0, element)
+
+    static member WriteElement(element: TodoElement) : TodoItemWriter =
+        let writer = TodoItemWriter()
+        writer.WriteElement(element)
+        writer
+
+    static member WriteElementContents(element: TodoElement) : TodoItemWriter =
+        let writer = TodoItemWriter()
+        writer.WriteElementContents(element)
+        writer
 
     override this.ToString() : string = String.concat "\n" output + "\n"
+
+    member this.ToSeq() : string seq = output

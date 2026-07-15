@@ -5,8 +5,6 @@ type TodoItem =
         mutable Text: string
         mutable Done: bool
         mutable Tags: Set<Tag>
-        FrontMatter: ResizeArray<string>
-        Items: ResizeArray<TodoItem>
     }
 
     override this.ToString() : string =
@@ -17,4 +15,32 @@ type TodoItem =
 
         sprintf "%c %s%s" marker this.Text tags
 
-type TodoFile = { Path: string; FrontMatter: ResizeArray<string>; Items: ResizeArray<TodoItem> }
+type TodoFile = { Path: string }
+
+type TodoElementGuts =
+    | Item of TodoItem
+    | File of TodoFile
+
+    override this.ToString() : string =
+        match this with
+        | Item item -> item.ToString()
+        | File file -> file.ToString()
+
+type TodoElement =
+    {
+        Guts: TodoElementGuts
+        FrontMatter: ResizeArray<string>
+        Items: ResizeArray<TodoElement>
+    }
+
+    override this.ToString() : string = this.Guts.ToString()
+
+    member this.MarkDone() : unit =
+        match this.Guts with
+        | Item item -> item.Done <- true
+        | _ -> ()
+
+    member this.UnmarkDone() : unit =
+        match this.Guts with
+        | Item item -> item.Done <- false
+        | _ -> ()

@@ -5,7 +5,7 @@ open System.Threading
 
 module Interactive =
 
-    let loop (file: TodoFile) : unit =
+    let loop (file: TodoElement) : unit =
         let state = State.Create(file)
 
         let render = View(state)

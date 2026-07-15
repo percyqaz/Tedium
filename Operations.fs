@@ -24,11 +24,33 @@ module Operations =
         dispatch_shell_command("vim '" + tmp + "'")
         File.ReadAllLines(tmp)
 
-    let edit_fm (fm: ResizeArray<string>, items: ResizeArray<TodoItem>) : unit =
-        let parsed = TodoItemParser.ParseLines(edit_with_vim(fm)).ToTodoFile("")
-        fm.Clear()
-        fm.AddRange(parsed.FrontMatter)
-        items.InsertRange(0, parsed.Items)
+    let edit_fm (element: TodoElement) : unit =
+        let parsed =
+            TodoItemParser.ParseLines(edit_with_vim(element.FrontMatter)).ToTodoFile("")
 
-    let edit_fm_file (file: TodoFile) : unit = edit_fm(file.FrontMatter, file.Items)
-    let edit_fm_item (item: TodoItem) : unit = edit_fm(item.FrontMatter, item.Items)
+        element.FrontMatter.Clear()
+        element.FrontMatter.AddRange(parsed.FrontMatter)
+        element.Items.InsertRange(0, parsed.Items)
+
+    let edit_contents (element: TodoElement) : unit =
+        let parsed =
+            TodoItemParser
+                .ParseLines(edit_with_vim(TodoItemWriter.WriteElementContents(element).ToSeq()))
+                .ToTodoFile("")
+
+        element.FrontMatter.Clear()
+        element.FrontMatter.AddRange(parsed.FrontMatter)
+        element.Items.Clear()
+        element.Items.AddRange(parsed.Items)
+
+    let edit_name (parent: TodoElement, item: TodoElement) : unit =
+        let parsed =
+            TodoItemParser.ParseLines(edit_with_vim([ item.ToString() ])).ToTodoFile("")
+
+        parent.FrontMatter.AddRange(parsed.FrontMatter)
+        let index = parent.Items.IndexOf(item)
+        parent.Items.RemoveAt(index)
+
+        if parsed.Items.Count > 0 then
+            parent.Items.Insert(index, { item with Guts = parsed.Items.[0].Guts })
+// todo: what if that turned it into a file
