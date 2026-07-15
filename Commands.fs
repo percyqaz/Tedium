@@ -18,12 +18,15 @@ module Commands =
         let split = command.Split(" ", 2, StringSplitOptions.TrimEntries)
 
         match split.[0] with
+        | "q"
+        | "q!"
         | "exit" -> state.Running <- false
         | "up" -> navigate_up(state)
         | "down" -> navigate_down(state)
         | "mark_done" -> state.Selected.MarkDone()
         | "unmark_done" -> state.Selected.UnmarkDone()
-        | "desc_fm_r" -> Operations.edit_fm(state.List)
-        | "desc_fm" -> Operations.edit_fm(state.Selected)
+        | "edit" -> Operations.edit(state.List, state.Selected)
+        | "gdesc" -> Operations.edit_fm(state.List)
+        | "desc" -> Operations.edit_fm(state.Selected)
         | "rename" -> Operations.edit_name(state.List, state.Selected)
         | _ -> ()

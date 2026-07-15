@@ -64,6 +64,10 @@ module InputBuffer =
             "l", ":open" + ENTER
             "x", ":mark_done" + ENTER
             "X", ":unmark_done" + ENTER
+            "e", ":edit" + ENTER
+            "r", ":rename" + ENTER
+            "d", ":desc" + ENTER
+            "D", ":gdesc" + ENTER
             special("Left"), "h"
             special("Down"), "j"
             special("Up"), "k"

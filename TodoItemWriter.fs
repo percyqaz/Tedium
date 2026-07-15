@@ -5,13 +5,13 @@ type TodoItemWriter() =
     let output = ResizeArray<string>()
 
     member private this.WriteElement(indent: int, item: TodoElement) : unit =
-        let padding = String.replicate indent " "
+        let padding = String.replicate indent "  "
         output.Add(padding + item.ToString())
         this.WriteElementContents(indent + 1, item)
 
     member private this.WriteElementContents(indent: int, element: TodoElement) : unit =
         if not(element.Guts.IsFile) then
-            let padding = String.replicate indent " "
+            let padding = String.replicate indent "  "
 
             for f in element.FrontMatter do
                 output.Add(padding + f)

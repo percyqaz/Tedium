@@ -53,4 +53,13 @@ module Operations =
 
         if parsed.Items.Count > 0 then
             parent.Items.Insert(index, { item with Guts = parsed.Items.[0].Guts })
-// todo: what if that turned it into a file
+    // todo: what if that turned it into a file
+
+    let edit (parent: TodoElement, item: TodoElement) : unit =
+        let parsed =
+            TodoItemParser.ParseLines(edit_with_vim(TodoItemWriter.WriteElement(item).ToSeq())).ToTodoFile("")
+
+        parent.FrontMatter.AddRange(parsed.FrontMatter)
+        let index = parent.Items.IndexOf(item)
+        parent.Items.RemoveAt(index)
+        parent.Items.InsertRange(index, parsed.Items)
