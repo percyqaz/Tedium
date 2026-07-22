@@ -15,7 +15,13 @@ type TodoItem =
 
         sprintf "%c %s%s" marker this.Text tags
 
-type TodoFile = { Path: string }
+type TodoFile =
+    {
+        Path: string
+    }
+
+    override this.ToString() : string = "/ " + this.Path
+
 
 type TodoElementGuts =
     | Item of TodoItem
@@ -38,10 +44,7 @@ type TodoElement =
     member this.ToggleTag(tag: Tag) : unit =
         match this.Guts with
         | Item item ->
-            if item.Tags.Contains(tag) then
-                item.Tags <- item.Tags.Remove(tag)
-            else
-                item.Tags <- item.Tags.Add(tag)
+            if item.Tags.Contains(tag) then item.Tags <- item.Tags.Remove(tag) else item.Tags <- item.Tags.Add(tag)
         | _ -> ()
 
     member this.MarkDone() : unit =

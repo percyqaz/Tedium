@@ -10,7 +10,7 @@ type TodoItemWriter() =
         this.WriteElementContents(indent + 1, item)
 
     member private this.WriteElementContents(indent: int, element: TodoElement) : unit =
-        if not(element.Guts.IsFile) then
+        if not(element.Guts.IsFile) || indent = 0 then
             let padding = String.replicate indent "  "
 
             for f in element.FrontMatter do

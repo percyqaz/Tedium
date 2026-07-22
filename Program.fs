@@ -1,40 +1,23 @@
+open System
+open System.IO
 open Tedium
 
-let text =
-    """
-design philosophy: 
-I find it difficult to prioritise in absolute terms
-so I would rather prioritise relatively
+let TODO_PATH =
+    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "todo.txt")
 
-j and k to navigate up/down
-l to scope into an item, viewing only its text and subtasks
-h to unscope out of an item
-feature: type @...<Enter> to add a tag instantly
-feature: type *...<Enter> to add a todo item instantly
-feature: reorder things up/down with alt+k and alt+j
-feature: calendar view
-feature: select tasks, place them under a task
-* marks a todo item
-  todo items can have any text matter directly below them, conventionally indented with 1 space but optional
-  * todo items can have nested items
-    * nested items can have even more nested items
-  * and siblings
-  * lots of siblings
-x marks a completed todo item
-* @ followed by [a-z0-9-_:]+ indicates tags
-* @work tags can appear anywhere in an item @date:2026-07-14 but get auto-formatted to the end
-* uppercase tags reserved as shorthands e.g. @TODAY as shorthand for @date:2026-07-14
-"""
+let save (todo_list: TodoElement) : unit =
+    File.WriteAllLines(TODO_PATH, TodoItemWriter.WriteElementContents(todo_list).ToSeq())
 
-let p = TodoItemParser()
+let load () : TodoElement =
+    use file = File.Open(TODO_PATH, FileMode.OpenOrCreate)
+    use sr = new StreamReader(file)
+    let p = TodoItemParser()
 
-for line in text.Trim().Split("\n") do
-    p.ParseLine(line.Trim('\r'))
+    while not(sr.EndOfStream) do
+        p.ParseLine(sr.ReadLine())
 
-let file = p.ToTodoFile("todo.txt")
+    p.ToTodoFile(TODO_PATH)
 
-Interactive.loop(file)
-
-let w = TodoItemWriter()
-w.WriteElementContents(file)
-printfn "%O" w
+let todo_list = load()
+Interactive.loop(todo_list)
+save(todo_list)

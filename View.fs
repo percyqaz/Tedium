@@ -8,12 +8,14 @@ type View(state: State) =
 
     member this.RenderFrontMatter() : unit =
         let is_selected = state.Selected = None
+
         let inline front_matter (text: string) : string =
             let colored = text.ForeColor(0x666666)
             if is_selected then colored.BackColor(0x333311) else colored
 
-        if is_selected then view.CursorHere()
-        
+        if is_selected then
+            view.CursorHere()
+
         for fm in state.List.FrontMatter do
             view.Line(front_matter(fm).ClearRestOfLine())
 
@@ -81,9 +83,14 @@ type View(state: State) =
             if item.Items.Count >= 3 then
                 view.Line(front_matter(sprintf "  +%i more" (item.Items.Count - 2), is_selected))
 
+    member this.TagLine() : string =
+        let loc = state.List.ToString().ForeColor(0xFF8888)
+        sprintf "%s (%i)" loc state.List.Items.Count
+
     member this.Redraw() : unit =
         Console.Write("\u001b[H")
-        view.Height <- Console.BufferHeight - 1
+        Console.WriteLine(this.TagLine().ClearRestOfLine())
+        view.Height <- Console.BufferHeight - 2
         this.RenderFrontMatter()
         this.RenderList()
         view.Draw()
