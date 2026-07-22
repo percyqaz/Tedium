@@ -4,7 +4,7 @@ type State =
     {
         mutable Running: bool
         List: TodoElement
-        mutable Selected: TodoElement
+        mutable Selected: TodoElement option
         mutable Buffer: string
     }
 
@@ -12,6 +12,6 @@ type State =
         {
             Running = true
             List = file
-            Selected = file.Items.[0]
+            Selected = None
             Buffer = ""
         }

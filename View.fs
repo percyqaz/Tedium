@@ -7,13 +7,15 @@ type View(state: State) =
     let view = ScreenBuffer(Console.BufferHeight - 1)
 
     member this.RenderFrontMatter() : unit =
-        let inline front_matter (text: string) : string = text.ForeColor(0x666666)
+        let is_selected = state.Selected = None
+        let inline front_matter (text: string) : string =
+            let colored = text.ForeColor(0x666666)
+            if is_selected then colored.BackColor(0x333311) else colored
 
-        for fm in state.List.FrontMatter |> Seq.truncate 2 do
-            Console.WriteLine(front_matter(fm).ClearRestOfLine())
-
-        if state.List.FrontMatter.Count >= 3 then
-            Console.WriteLine(front_matter("...").ClearRestOfLine())
+        if is_selected then view.CursorHere()
+        
+        for fm in state.List.FrontMatter do
+            view.Line(front_matter(fm).ClearRestOfLine())
 
     member this.ElementLine(element: TodoElement, is_selected: bool) : string =
         let inline item_line (item: TodoItem) : string =
@@ -63,7 +65,7 @@ type View(state: State) =
             if is_selected then colored.BackColor(0x333311) else colored
 
         for item in state.List.Items do
-            let is_selected = state.Selected = item
+            let is_selected = state.Selected = Some item
 
             view.Line(this.ElementLine(item, is_selected), is_selected)
 
@@ -81,8 +83,8 @@ type View(state: State) =
 
     member this.Redraw() : unit =
         Console.Write("\u001b[H")
+        view.Height <- Console.BufferHeight - 1
         this.RenderFrontMatter()
-        view.Height <- Console.BufferHeight - 1 - min state.List.FrontMatter.Count 3
         this.RenderList()
         view.Draw()
         Console.Write(state.Buffer.ForeColor(0x88FF88).Bold().ClearRestOfLine())
