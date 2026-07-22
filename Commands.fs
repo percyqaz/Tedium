@@ -26,6 +26,17 @@ module Commands =
             if state.Scope.Items.Count > 0 then
                 state.Selected <- Some state.Scope.Items.[0]
 
+    let navigate_in (state: State) : unit =
+        match state.Selected with
+        | Some item ->
+            state.Scope <- item
+            state.Selected <- None
+        | None -> ()
+
+    let navigate_out (state: State) : unit =
+        state.Scope <- state.Root
+        state.Selected <- None
+
     let move_up (state: State) : unit =
         match state.Selected with
         | Some item ->
@@ -63,6 +74,8 @@ module Commands =
         | "exit" -> state.Running <- false
         | "up" -> navigate_up(state)
         | "down" -> navigate_down(state)
+        | "close" -> navigate_out(state)
+        | "open" -> navigate_in(state)
         | "move_up" -> move_up(state)
         | "move_down" -> move_down(state)
         | "mark_done" -> state.Selected |> Option.iter _.MarkDone()

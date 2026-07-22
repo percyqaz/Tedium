@@ -13,7 +13,7 @@ type Indentation =
     static member Create(level: int) : Indentation =
         { Level = level; FrontMatter = ResizeArray(); Items = ResizeArray() }
 
-    static member Create(level: int, item: TodoElement) =
+    static member Create(level: int, item: TodoElement) : Indentation =
         { Level = level; FrontMatter = item.FrontMatter; Items = item.Items }
 
 

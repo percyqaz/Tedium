@@ -4,7 +4,7 @@ type State =
     {
         mutable Running: bool
         Root: TodoElement
-        Scope: TodoElement
+        mutable Scope: TodoElement
         mutable Selected: TodoElement option
         mutable Buffer: string
     }
