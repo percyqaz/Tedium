@@ -71,17 +71,18 @@ type View(state: State) =
 
             view.Line(this.ElementLine(item, is_selected), is_selected)
 
-            for fm in item.FrontMatter |> Seq.truncate 2 do
-                view.Line(front_matter("  " + fm, is_selected))
+            if is_selected then
+                for fm in item.FrontMatter |> Seq.truncate 2 do
+                    view.Line(front_matter("  " + fm, is_selected))
 
-            if item.FrontMatter.Count >= 3 then
-                view.Line(front_matter("  ...", is_selected))
+                if item.FrontMatter.Count >= 3 then
+                    view.Line(front_matter("  ...", is_selected))
 
-            for sub_item in item.Items |> Seq.truncate 2 do
-                view.Line(this.SubElementLine(sub_item, is_selected))
+                for sub_item in item.Items |> Seq.truncate 2 do
+                    view.Line(this.SubElementLine(sub_item, is_selected))
 
-            if item.Items.Count >= 3 then
-                view.Line(front_matter(sprintf "  +%i more" (item.Items.Count - 2), is_selected))
+                if item.Items.Count >= 3 then
+                    view.Line(front_matter(sprintf "  +%i more" (item.Items.Count - 2), is_selected))
 
     member this.TagLine() : string =
         let loc = state.Scope.ToString().ForeColor(0xFF8888)

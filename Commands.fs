@@ -64,7 +64,6 @@ module Commands =
             state.Scope.Items.Remove(item) |> ignore
         | None -> state.Scope.FrontMatter.Clear()
 
-
     let dispatch_internal_command (state: State, command: string) : unit =
         let split = command.Split(" ", 2, StringSplitOptions.TrimEntries)
 
