@@ -3,7 +3,8 @@ namespace Tedium
 type State =
     {
         mutable Running: bool
-        List: TodoElement
+        Root: TodoElement
+        Scope: TodoElement
         mutable Selected: TodoElement option
         mutable Buffer: string
     }
@@ -11,7 +12,8 @@ type State =
     static member Create(file: TodoElement) : State =
         {
             Running = true
-            List = file
+            Root = file
+            Scope = file
             Selected = None
             Buffer = ""
         }

@@ -16,7 +16,7 @@ type View(state: State) =
         if is_selected then
             view.CursorHere()
 
-        for fm in state.List.FrontMatter do
+        for fm in state.Scope.FrontMatter do
             view.Line(front_matter(fm).ClearRestOfLine())
 
     member this.ElementLine(element: TodoElement, is_selected: bool) : string =
@@ -66,7 +66,7 @@ type View(state: State) =
             let colored = text.ForeColor(0x666666)
             if is_selected then colored.BackColor(0x333311) else colored
 
-        for item in state.List.Items do
+        for item in state.Scope.Items do
             let is_selected = state.Selected = Some item
 
             view.Line(this.ElementLine(item, is_selected), is_selected)
@@ -84,8 +84,8 @@ type View(state: State) =
                 view.Line(front_matter(sprintf "  +%i more" (item.Items.Count - 2), is_selected))
 
     member this.TagLine() : string =
-        let loc = state.List.ToString().ForeColor(0xFF8888)
-        sprintf "%s (%i)" loc state.List.Items.Count
+        let loc = state.Scope.ToString().ForeColor(0xFF8888)
+        sprintf "%s (%i)" loc state.Scope.Items.Count
 
     member this.Redraw() : unit =
         Console.Write("\u001b[H")

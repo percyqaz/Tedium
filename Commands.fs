@@ -7,51 +7,51 @@ module Commands =
     let navigate_up (state: State) : unit =
         match state.Selected with
         | Some item ->
-            let index = state.List.Items.IndexOf(item)
-            if index = 0 then state.Selected <- None else state.Selected <- Some state.List.Items.[index - 1]
+            let index = state.Scope.Items.IndexOf(item)
+            if index = 0 then state.Selected <- None else state.Selected <- Some state.Scope.Items.[index - 1]
         | None ->
-            if state.List.Items.Count > 0 then
-                state.Selected <- Some state.List.Items.[state.List.Items.Count - 1]
+            if state.Scope.Items.Count > 0 then
+                state.Selected <- Some state.Scope.Items.[state.Scope.Items.Count - 1]
 
     let navigate_down (state: State) : unit =
         match state.Selected with
         | Some item ->
-            let index = state.List.Items.IndexOf(item)
+            let index = state.Scope.Items.IndexOf(item)
 
-            if index + 1 >= state.List.Items.Count then
+            if index + 1 >= state.Scope.Items.Count then
                 state.Selected <- None
             else
-                state.Selected <- Some state.List.Items.[index + 1]
+                state.Selected <- Some state.Scope.Items.[index + 1]
         | None ->
-            if state.List.Items.Count > 0 then
-                state.Selected <- Some state.List.Items.[0]
+            if state.Scope.Items.Count > 0 then
+                state.Selected <- Some state.Scope.Items.[0]
 
     let move_up (state: State) : unit =
         match state.Selected with
         | Some item ->
-            let index = state.List.Items.IndexOf(item)
+            let index = state.Scope.Items.IndexOf(item)
 
             if index > 0 then
-                state.List.Items.RemoveAt(index)
-                state.List.Items.Insert(index - 1, item)
+                state.Scope.Items.RemoveAt(index)
+                state.Scope.Items.Insert(index - 1, item)
         | None -> ()
 
     let move_down (state: State) : unit =
         match state.Selected with
         | Some item ->
-            let index = state.List.Items.IndexOf(item)
+            let index = state.Scope.Items.IndexOf(item)
 
-            if index + 1 < state.List.Items.Count then
-                state.List.Items.RemoveAt(index)
-                state.List.Items.Insert(index + 1, item)
+            if index + 1 < state.Scope.Items.Count then
+                state.Scope.Items.RemoveAt(index)
+                state.Scope.Items.Insert(index + 1, item)
         | None -> ()
 
     let delete (state: State) : unit =
         match state.Selected with
         | Some item ->
             navigate_up(state)
-            state.List.Items.Remove(item) |> ignore
-        | None -> state.List.FrontMatter.Clear()
+            state.Scope.Items.Remove(item) |> ignore
+        | None -> state.Scope.FrontMatter.Clear()
 
 
     let dispatch_internal_command (state: State, command: string) : unit =
@@ -69,16 +69,16 @@ module Commands =
         | "unmark_done" -> state.Selected |> Option.iter _.UnmarkDone()
         | "edit" ->
             match state.Selected with
-            | Some item -> Operations.edit(state.List, item)
-            | None -> Operations.edit_fm(state.List)
+            | Some item -> Operations.edit(state.Scope, item)
+            | None -> Operations.edit_fm(state.Scope)
         | "delete" -> delete(state)
         | "desc" ->
             match state.Selected with
             | Some item -> Operations.edit_contents(item)
-            | None -> Operations.edit_fm(state.List)
+            | None -> Operations.edit_fm(state.Scope)
         | "rename" ->
             match state.Selected with
-            | Some item -> Operations.edit_name(state.List, item)
+            | Some item -> Operations.edit_name(state.Scope, item)
             | None -> ()
         | _ -> ()
 
@@ -92,11 +92,11 @@ module Commands =
 
             let index =
                 match state.Selected with
-                | Some item -> state.List.Items.IndexOf(item)
+                | Some item -> state.Scope.Items.IndexOf(item)
                 | None -> -1
 
-            state.List.Items.InsertRange(index + 1, data.Items)
-            state.List.FrontMatter.AddRange(data.FrontMatter)
+            state.Scope.Items.InsertRange(index + 1, data.Items)
+            state.Scope.FrontMatter.AddRange(data.FrontMatter)
 
             if data.Items.Count > 0 then
                 state.Selected <- Some data.Items.[data.Items.Count - 1]
