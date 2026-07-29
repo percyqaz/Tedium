@@ -29,12 +29,12 @@ module Commands =
     let navigate_in (state: State) : unit =
         match state.Selected with
         | Some item ->
-            state.Scope <- item
+            state.Open(item)
             state.Selected <- None
         | None -> ()
 
     let navigate_out (state: State) : unit =
-        state.Scope <- state.Root
+        state.Close()
         state.Selected <- None
 
     let move_up (state: State) : unit =

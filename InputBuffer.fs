@@ -72,7 +72,8 @@ module InputBuffer =
             special("A-k"), ":move_up" + ENTER
             special("Down"), "j"
             special("Up"), "k"
-            ESC, ":exit" + ENTER
+            ESC, ":close" + ENTER
+            ENTER, ":open" + ENTER
         ]
 
     let consume_buffer (state: State, shorthand: string, target: string) : unit =
