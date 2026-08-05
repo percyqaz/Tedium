@@ -60,7 +60,7 @@ type View(state: State) =
         sprintf "%s (%i)" loc state.Scope.Items.Count
 
     member this.Redraw() : unit =
-        Console.Write("\u001b[H")
+        Console.Write(AnsiCodes.CURSOR_TO_ORIGIN)
         Console.WriteLine(this.TagLine().ClearRestOfLine())
         view.Height <- Console.BufferHeight - 2
         this.RenderFrontMatter()

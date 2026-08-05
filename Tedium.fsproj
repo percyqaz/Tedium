@@ -16,6 +16,7 @@
     <Compile Include="State\Commands.fs" />
     <Compile Include="Input\InputThread.fs" />
     <Compile Include="Input\InputBuffer.fs" />
+    <Compile Include="UI\AnsiCodes.fs" />
     <Compile Include="UI\ScreenBuffer.fs" />
     <Compile Include="UI\View.fs" />
     <Compile Include="Tedium.fs" />
