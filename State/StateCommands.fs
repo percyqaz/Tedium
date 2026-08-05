@@ -34,15 +34,11 @@ type StateCommands =
     [<Extension>]
     static member NavigateIn(state: State) : unit =
         match state.Selected with
-        | Some item ->
-            state.Open(item)
-            state.Selected <- None
+        | Some item -> state.Open(item)
         | None -> ()
 
     [<Extension>]
-    static member NavigateOut(state: State) : unit =
-        state.Close()
-        state.Selected <- None
+    static member NavigateOut(state: State) : unit = state.Close()
 
     [<Extension>]
     static member MoveUp(state: State) : unit =
