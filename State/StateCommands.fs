@@ -116,35 +116,11 @@ type StateCommands =
         | None -> ()
 
     [<Extension>]
-    static member DispatchCommand(state: State, command: string) : unit =
-        let split = command.Split(" ", 2, StringSplitOptions.TrimEntries)
-
-        match split.[0] with
-        | "q"
-        | "q!"
-        | "exit" -> state.Exit()
-        | "up" -> state.NavigateUp()
-        | "down" -> state.NavigateDown()
-        | "close" -> state.NavigateOut()
-        | "open" -> state.NavigateIn()
-        | "move_up" -> state.MoveUp()
-        | "move_down" -> state.MoveDown()
-        | "mark_done" -> state.MarkDone()
-        | "unmark_done" -> state.UnmarkDone()
-        | "edit" -> state.Edit()
-        | "delete" -> state.Delete()
-        | "desc" -> state.Describe()
-        | "rename" -> state.Rename()
-        | _ -> ()
-
-    [<Extension>]
     static member DispatchText(state: State, text: string) : unit =
-        let inline parse_and_toggle_tag () : bool =
+        let inline parse_and_toggle_tag () =
             match Tag.TryParse(text) with
-            | true, tag ->
-                state.Selected |> Option.iter _.ToggleTag(tag)
-                true
-            | false, _ -> false
+            | true, tag -> state.Selected |> Option.iter _.ToggleTag(tag)
+            | false, _ -> ()
 
         let inline parse_and_add_item () : unit =
             let data = TodoItemParser.ParseLines([ text ]).ToTodoFile("")
@@ -159,9 +135,4 @@ type StateCommands =
             if data.Items.Count > 0 then
                 state.Selected <- Some data.Items.[data.Items.Count - 1]
 
-        if text.StartsWith(':') then
-            state.DispatchCommand(text.Substring(1))
-        elif parse_and_toggle_tag() then
-            ()
-        elif text.StartsWith('*') then
-            parse_and_add_item()
+        if text.StartsWith('*') then parse_and_add_item() else parse_and_toggle_tag()

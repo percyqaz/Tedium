@@ -12,13 +12,14 @@
     <Compile Include="TodoList\TodoItemWriter.fs" />
     <Compile Include="TodoList\TodoListRoot.fs" />
     <Compile Include="TodoList\Operations.fs" />
+    <Compile Include="Input\InputThread.fs" />
+    <Compile Include="Input\CommandBuffer.fs" />
     <Compile Include="State\State.fs" />
     <Compile Include="State\StateCommands.fs" />
-    <Compile Include="Input\InputThread.fs" />
-    <Compile Include="Input\InputBuffer.fs" />
     <Compile Include="UI\AnsiCodes.fs" />
     <Compile Include="UI\ScreenBuffer.fs" />
     <Compile Include="UI\View.fs" />
+    <Compile Include="CommandDispatcher.fs" />
     <Compile Include="Tedium.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

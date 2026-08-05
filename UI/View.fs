@@ -66,4 +66,4 @@ type View(state: State) =
         this.RenderFrontMatter()
         this.RenderList()
         view.Draw()
-        Console.Write(state.Buffer.ForeColor(0x88FF88).Bold().ClearRestOfLine())
+        Console.Write(state.CommandBuffer.ToString().ForeColor(0x88FF88).Bold().ClearRestOfLine())

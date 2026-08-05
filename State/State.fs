@@ -6,7 +6,7 @@ type State =
         Root: TodoListRoot
         mutable Stack: TodoElement list
         mutable Selected: TodoElement option
-        mutable Buffer: string
+        CommandBuffer: CommandBuffer
         mutable Dirty: bool
     }
 
@@ -26,7 +26,7 @@ type State =
             Root = root
             Stack = [ root.RootElement ]
             Selected = None
-            Buffer = ""
+            CommandBuffer = CommandBuffer().SetDefaultBinds()
             Dirty = false
         }
 
