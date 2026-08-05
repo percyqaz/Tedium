@@ -90,16 +90,10 @@ module InputBuffer =
         if state.Buffer.EndsWith(ESC) then
             state.Buffer <- ""
 
-        elif state.Buffer.StartsWith(":") && state.Buffer.Contains(ENTER) then
-            let end_of_command = state.Buffer.IndexOf(ENTER)
-            let command = state.Buffer.Substring(1, end_of_command - 1)
-            Commands.dispatch_internal_command(state, command)
-            state.Buffer <- state.Buffer.Substring(end_of_command + ENTER.Length)
-
-        elif not(state.Buffer.StartsWith(ENTER)) && state.Buffer.EndsWith(ENTER) then
+        elif not(state.Buffer.StartsWith(ENTER)) && state.Buffer.Contains(ENTER) then
             let end_of_text = state.Buffer.IndexOf(ENTER)
             let text = state.Buffer.Substring(0, end_of_text)
-            Commands.send_text(state, text)
+            state.DispatchText(text)
             state.Buffer <- state.Buffer.Substring(end_of_text + ENTER.Length)
 
         if previous_buffer <> state.Buffer then

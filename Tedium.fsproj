@@ -11,9 +11,9 @@
     <Compile Include="TodoList\TodoItemParser.fs" />
     <Compile Include="TodoList\TodoItemWriter.fs" />
     <Compile Include="TodoList\TodoListRoot.fs" />
+    <Compile Include="TodoList\Operations.fs" />
     <Compile Include="State\State.fs" />
-    <Compile Include="State\Operations.fs" />
-    <Compile Include="State\Commands.fs" />
+    <Compile Include="State\StateCommands.fs" />
     <Compile Include="Input\InputThread.fs" />
     <Compile Include="Input\InputBuffer.fs" />
     <Compile Include="UI\AnsiCodes.fs" />
