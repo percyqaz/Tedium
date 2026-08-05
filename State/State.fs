@@ -1,13 +1,16 @@
 namespace Tedium
 
+open System
+
 type State =
     {
         mutable Running: bool
+        mutable Dirty: bool
         Root: TodoListRoot
         mutable Stack: TodoElement list
         mutable Selected: TodoElement option
         CommandBuffer: CommandBuffer
-        mutable Dirty: bool
+        mutable StatusLine: string
     }
 
     member this.Scope: TodoElement = List.head this.Stack
@@ -23,11 +26,12 @@ type State =
 
         {
             Running = true
+            Dirty = false
             Root = root
             Stack = [ root.RootElement ]
             Selected = None
             CommandBuffer = CommandBuffer().SetDefaultBinds()
-            Dirty = false
+            StatusLine = ""
         }
 
     member this.MarkDirty() : unit = this.Dirty <- true
@@ -35,4 +39,5 @@ type State =
     member this.SaveChanges() : unit =
         if this.Dirty then
             this.Root.Save()
+            this.StatusLine <- sprintf "Autosaved (%s)" (DateTime.Now.ToShortTimeString())
             this.Dirty <- false

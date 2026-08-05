@@ -1,6 +1,5 @@
 namespace Tedium
 
-open System
 open System.Runtime.CompilerServices
 
 type StateCommands =
@@ -78,7 +77,9 @@ type StateCommands =
         match state.Selected with
         | Some item ->
             state.NavigateUp()
-            state.Scope.Items.Remove(item) |> ignore
+
+            if state.Scope.Items.Remove(item) then
+                state.StatusLine <- sprintf "Deleted %O" item
         | None -> state.Scope.FrontMatter.Clear()
 
     [<Extension>]
@@ -135,4 +136,6 @@ type StateCommands =
             if data.Items.Count > 0 then
                 state.Selected <- Some data.Items.[data.Items.Count - 1]
 
-        if text.StartsWith('*') then parse_and_add_item() else parse_and_toggle_tag()
+        if text.StartsWith('*') then parse_and_add_item()
+        elif text.StartsWith('@') then parse_and_toggle_tag()
+        else state.StatusLine <- sprintf "Unrecognised input: %s" text

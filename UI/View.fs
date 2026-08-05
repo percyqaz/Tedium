@@ -4,7 +4,7 @@ open System
 
 type View(state: State) =
 
-    let view = ScreenBuffer(Console.BufferHeight - 1)
+    let view = ScreenBuffer(Console.BufferHeight - 2)
 
     member this.RenderFrontMatter() : unit =
         let is_selected = state.Selected = None
@@ -66,4 +66,5 @@ type View(state: State) =
         this.RenderFrontMatter()
         this.RenderList()
         view.Draw()
+        Console.WriteLine("Tedium ".ForeColor(0xFF8888).Bold() + state.StatusLine.ForeColor(0x444444).ClearRestOfLine())
         Console.Write(state.CommandBuffer.ToString().ForeColor(0x88FF88).Bold().ClearRestOfLine())

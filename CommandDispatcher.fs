@@ -23,7 +23,7 @@ type CommandDispatcher(state: State) =
         | "delete" -> state.Delete()
         | "desc" -> state.Describe()
         | "rename" -> state.Rename()
-        | _ -> ()
+        | _ -> state.StatusLine <- sprintf "Unrecognised command '%s'" split.[0]
 
     member this.DispatchText(line: string) : unit =
         if line.StartsWith(':') then this.DispatchCommand(line.Substring(1)) else state.DispatchText(line)
