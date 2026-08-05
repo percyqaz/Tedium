@@ -38,6 +38,8 @@ module Commands =
         state.Selected <- None
 
     let move_up (state: State) : unit =
+        state.MarkDirty()
+
         match state.Selected with
         | Some item ->
             let index = state.Scope.Items.IndexOf(item)
@@ -48,6 +50,8 @@ module Commands =
         | None -> ()
 
     let move_down (state: State) : unit =
+        state.MarkDirty()
+
         match state.Selected with
         | Some item ->
             let index = state.Scope.Items.IndexOf(item)
@@ -58,6 +62,8 @@ module Commands =
         | None -> ()
 
     let delete (state: State) : unit =
+        state.MarkDirty()
+
         match state.Selected with
         | Some item ->
             navigate_up(state)
@@ -77,18 +83,30 @@ module Commands =
         | "open" -> navigate_in(state)
         | "move_up" -> move_up(state)
         | "move_down" -> move_down(state)
-        | "mark_done" -> state.Selected |> Option.iter _.MarkDone()
-        | "unmark_done" -> state.Selected |> Option.iter _.UnmarkDone()
+        | "mark_done" ->
+            state.MarkDirty()
+            state.Selected |> Option.iter _.MarkDone()
+        | "unmark_done" ->
+            state.MarkDirty()
+            state.Selected |> Option.iter _.UnmarkDone()
         | "edit" ->
+            state.MarkDirty()
+
             match state.Selected with
             | Some item -> Operations.edit(state.Scope, item)
             | None -> Operations.edit_fm(state.Scope)
-        | "delete" -> delete(state)
+        | "delete" ->
+            state.MarkDirty()
+            delete(state)
         | "desc" ->
+            state.MarkDirty()
+
             match state.Selected with
             | Some item -> Operations.edit_contents(item)
             | None -> Operations.edit_fm(state.Scope)
         | "rename" ->
+            state.MarkDirty()
+
             match state.Selected with
             | Some item -> Operations.edit_name(state.Scope, item)
             | None -> ()
@@ -99,7 +117,7 @@ module Commands =
         | true, tag -> state.Selected |> Option.iter _.ToggleTag(tag)
         | false, _ ->
 
-        if text <> "" then
+        if text.StartsWith('*') then
             let data = TodoItemParser.ParseLines([ text ]).ToTodoFile("")
 
             let index =
@@ -108,7 +126,6 @@ module Commands =
                 | None -> -1
 
             state.Scope.Items.InsertRange(index + 1, data.Items)
-            state.Scope.FrontMatter.AddRange(data.FrontMatter)
 
             if data.Items.Count > 0 then
                 state.Selected <- Some data.Items.[data.Items.Count - 1]

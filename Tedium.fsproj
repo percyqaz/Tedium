@@ -12,6 +12,7 @@
     <Compile Include="TodoItem.fs" />
     <Compile Include="TodoItemParser.fs" />
     <Compile Include="TodoItemWriter.fs" />
+    <Compile Include="TodoListRoot.fs" />
     <Compile Include="State.fs" />
     <Compile Include="ScreenBuffer.fs" />
     <Compile Include="View.fs" />
