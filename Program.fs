@@ -5,4 +5,4 @@ open Tedium
 let TODO_PATH =
     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "todo.txt")
 
-Interactive.loop(TODO_PATH)
+Tedium.loop(TODO_PATH)

@@ -20,7 +20,7 @@
     <Compile Include="Commands.fs" />
     <Compile Include="InputBuffer.fs" />
     <Compile Include="InputThread.fs" />
-    <Compile Include="Interactive.fs" />
+    <Compile Include="Tedium.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

@@ -2,7 +2,7 @@ namespace Tedium
 
 open System
 
-module Interactive =
+module Tedium =
 
     let loop (todo_file_path: string) : unit =
         let state = State.Create(todo_file_path)
