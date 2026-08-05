@@ -17,11 +17,13 @@ type CommandDispatcher(state: State) =
         | "open" -> state.NavigateIn()
         | "move_up" -> state.MoveUp()
         | "move_down" -> state.MoveDown()
+        | "move_in" -> state.MoveIn()
+        | "move_out" -> state.MoveOut()
         | "mark_done" -> state.MarkDone()
         | "unmark_done" -> state.UnmarkDone()
         | "edit" -> state.Edit()
         | "delete" -> state.Delete()
-        | "desc" -> state.Describe()
+        | "describe" -> state.Describe()
         | "rename" -> state.Rename()
         | _ -> state.StatusLine <- sprintf "Unrecognised command '%s'" split.[0]
 

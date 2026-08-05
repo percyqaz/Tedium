@@ -123,9 +123,11 @@ type CommandBuffer() =
         bind "e" "edit"
         bind "r" "rename"
         bind "dd" "delete"
-        bind "." "desc"
+        bind "." "describe"
         bind (special("A-j")) "move_down"
         bind (special("A-k")) "move_up"
+        bind (special("A-l")) "move_in"
+        bind (special("A-h")) "move_out"
 
         alias (special("Down")) "j"
         alias (special("Up")) "k"

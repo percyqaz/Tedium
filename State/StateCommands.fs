@@ -67,6 +67,40 @@ type StateCommands =
         | None -> ()
 
     [<Extension>]
+    static member MoveIn(state: State) : unit =
+        state.MarkDirty()
+
+        match state.Selected with
+        | Some item ->
+            let index = state.Scope.Items.IndexOf(item)
+
+            if index > 0 then
+                let target = state.Scope.Items.[index - 1]
+                target.Items.Add(item)
+                state.Scope.Items.Remove(item) |> ignore
+                state.Selected <- Some target
+        | None -> ()
+
+    [<Extension>]
+    static member MoveOut(state: State) : unit =
+        state.MarkDirty()
+
+        match state.Selected with
+        | Some item ->
+            match state.Stack with
+            | (parent, container) :: _ ->
+                let child_index = state.Scope.Items.IndexOf(item)
+                let index = parent.Items.IndexOf(container)
+
+                if container.Items.Remove(item) then
+                    parent.Items.Insert(index + 1, item)
+
+                    state.Selected <-
+                        if child_index < state.Scope.Items.Count then Some state.Scope.Items.[child_index] else None
+            | [] -> ()
+        | None -> ()
+
+    [<Extension>]
     static member Delete(state: State) : unit =
         state.MarkDirty()
 

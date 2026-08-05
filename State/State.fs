@@ -7,7 +7,7 @@ type State =
         mutable Running: bool
         mutable Dirty: bool
         Root: TodoListRoot
-        mutable Stack: (TodoElement * TodoElement option) list
+        mutable Stack: (TodoElement * TodoElement) list
         mutable Scope: TodoElement
         mutable Selected: TodoElement option
         CommandBuffer: CommandBuffer
@@ -15,7 +15,7 @@ type State =
     }
 
     member this.Open(element: TodoElement) : unit =
-        this.Stack <- (this.Scope, this.Selected) :: this.Stack
+        this.Stack <- (this.Scope, element) :: this.Stack
         this.Scope <- element
         this.Selected <- None
 
@@ -25,7 +25,7 @@ type State =
         | (previous, previous_selection) :: stack ->
             this.Stack <- stack
             this.Scope <- previous
-            this.Selected <- previous_selection
+            this.Selected <- Some previous_selection
 
     static member Create(path: string) : State =
         let root = TodoListRoot.Load(path)
