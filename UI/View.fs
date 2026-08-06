@@ -4,7 +4,7 @@ open System
 
 type View(state: State) =
 
-    let view = ScreenBuffer(Console.BufferHeight - 2)
+    let view = ScreenBuffer(Console.BufferHeight - 3)
 
     member this.RenderFrontMatter() : unit =
         let is_selected = state.Selected = None
@@ -62,7 +62,7 @@ type View(state: State) =
     member this.Redraw() : unit =
         Console.Write(AnsiCodes.CURSOR_TO_ORIGIN)
         Console.WriteLine(this.TagLine().ClearRestOfLine())
-        view.Height <- Console.BufferHeight - 2
+        view.Height <- Console.BufferHeight - 3
         this.RenderFrontMatter()
         this.RenderList()
         view.Draw()
