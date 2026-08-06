@@ -148,6 +148,8 @@ type StateCommands =
 
     [<Extension>]
     static member DispatchText(state: State, text: string) : unit =
+        state.MarkDirty()
+
         let inline parse_and_toggle_tag () =
             match Tag.TryParse(text) with
             | true, tag -> state.Selected |> Option.iter _.ToggleTag(tag)
