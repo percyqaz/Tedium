@@ -12,7 +12,7 @@ module Tedium =
         let render = View(state)
         input_thread.Start()
 
-        Console.Write(AnsiCodes.ENTER_SECOND_SCREEN)
+        Console.Write(AnsiCodes.EnterSecondScreen)
 
         while state.Running do
             render.Redraw()
@@ -23,7 +23,7 @@ module Tedium =
                 command_dispatcher.DispatchCommandsOnState()
             | false, _ -> state.SaveChanges()
 
-        Console.Write(AnsiCodes.LEAVE_SECOND_SCREEN)
+        Console.Write(AnsiCodes.LeaveSecondScreen)
 
         input_thread.Dispose()
         state.SaveChanges()
