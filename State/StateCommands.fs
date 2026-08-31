@@ -127,7 +127,10 @@ type StateCommands =
         state.MarkDirty()
 
         match state.Selected with
-        | Some item -> Operations.edit(state.Scope, item)
+        | Some item ->
+            state.NavigateUp()
+            Operations.edit(state.Scope, item)
+            state.NavigateDown()
         | None -> Operations.edit_fm(state.Scope)
 
     [<Extension>]
