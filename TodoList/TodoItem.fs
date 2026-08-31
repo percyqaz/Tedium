@@ -22,7 +22,6 @@ type TodoFile =
 
     override this.ToString() : string = "/ " + this.Path
 
-
 type TodoElementGuts =
     | Item of TodoItem
     | File of TodoFile
@@ -44,7 +43,14 @@ type TodoElement =
     member this.ToggleTag(tag: Tag) : unit =
         match this.Guts with
         | Item item ->
-            if item.Tags.Contains(tag) then item.Tags <- item.Tags.Remove(tag) else item.Tags <- item.Tags.Add(tag)
+            match item.Tags |> Seq.tryFind(fun t -> t.Label = tag.Label) with
+            | Some tag_already_added ->
+                item.Tags <-
+                    if tag.Value <> ValueNone then
+                        item.Tags.Remove(tag_already_added).Add(tag)
+                    else
+                        item.Tags.Remove(tag_already_added)
+            | None -> item.Tags <- item.Tags.Add(tag)
         | _ -> ()
 
     member this.MarkDone() : unit =
