@@ -15,18 +15,29 @@ type Tag =
         | ValueNone -> sprintf "@%s" this.Label
 
     static member TryParse(value: string, out: outref<Tag>) : bool =
-        let inline is_acceptable_character (c: char) =
-            Char.IsAsciiDigit(c) || Char.IsAsciiLetterLower(c) || c = '_' || c = '-' || c = ':'
+        let inline acceptable_tag_char (c: char) : bool =
+            Char.IsAsciiDigit(c) || Char.IsAsciiLetterLower(c) || c = '_' || c = '-'
 
-        if value.StartsWith('@') then
-            let value = value.Substring(1)
+        let inline acceptable_data_char (c: char) : bool =
+            Char.IsAsciiLetterOrDigit(c) || c = '_' || c = '-' || c = ':' || c = '/'
 
-            if value.Length > 0 && String.forall is_acceptable_character value then
-                let split = value.Split(':', 2)
-                out <- { Label = split.[0]; Value = if split.Length > 1 then ValueSome(split.[1]) else ValueNone }
-                true
-            else
+        let TAG_SYMBOL = '@'
+        let TAG_DATA_SEPARATOR = ':'
+
+        if value.StartsWith(TAG_SYMBOL) && value.Length > 1 then
+            let split = value.Substring(1).Split(TAG_DATA_SEPARATOR, 2)
+
+            if not(String.forall acceptable_tag_char split.[0]) then
                 false
+            elif split.Length > 1 then
+                if not(String.forall acceptable_data_char split.[1]) then
+                    false
+                else
+                    out <- { Label = split.[0]; Value = ValueSome(split.[1]) }
+                    true
+            else
+                out <- { Label = split.[0]; Value = ValueNone }
+                true
         else
             false
 
