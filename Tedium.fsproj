@@ -6,18 +6,20 @@
     <ToolCommandName>tedium</ToolCommandName>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CLI\AnsiCodes.fs" />
+    <Compile Include="CLI\ScreenBuffer.fs" />
+    <Compile Include="CLI\InputThread.fs" />
+    <Compile Include="CLI\CommandBuffer.fs" />
+    <Compile Include="GitHub\Issues.fs" />
+    <Compile Include="GitHub\GitHub.fs" />
     <Compile Include="TodoList\Tag.fs" />
     <Compile Include="TodoList\TodoItem.fs" />
     <Compile Include="TodoList\TodoItemParser.fs" />
     <Compile Include="TodoList\TodoItemWriter.fs" />
     <Compile Include="TodoList\TodoListRoot.fs" />
     <Compile Include="TodoList\Operations.fs" />
-    <Compile Include="Input\InputThread.fs" />
-    <Compile Include="Input\CommandBuffer.fs" />
     <Compile Include="State\State.fs" />
     <Compile Include="State\StateCommands.fs" />
-    <Compile Include="UI\AnsiCodes.fs" />
-    <Compile Include="UI\ScreenBuffer.fs" />
     <Compile Include="UI\View.fs" />
     <Compile Include="CommandDispatcher.fs" />
     <Compile Include="Tedium.fs" />
