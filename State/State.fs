@@ -37,7 +37,7 @@ type State =
             Stack = []
             Scope = root.RootElement
             Selected = None
-            CommandBuffer = CommandBuffer().SetDefaultBinds()
+            CommandBuffer = CommandBuffer()
             StatusLine = ""
         }
 

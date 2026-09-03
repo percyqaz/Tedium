@@ -9,6 +9,7 @@
     <Compile Include="CLI\AnsiCodes.fs" />
     <Compile Include="CLI\ScreenBuffer.fs" />
     <Compile Include="CLI\InputThread.fs" />
+    <Compile Include="CLI\Keymap.fs" />
     <Compile Include="CLI\CommandBuffer.fs" />
     <Compile Include="GitHub\Issues.fs" />
     <Compile Include="GitHub\GitHub.fs" />

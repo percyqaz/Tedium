@@ -7,27 +7,11 @@ exception BufferTooLongException of string
 type CommandBuffer() =
 
     [<Literal>]
-    let LT_LOOKALIKE = "＜"
-
-    [<Literal>]
-    let GT_LOOKALIKE = "＞"
-
-    [<Literal>]
-    let ARBITRARY_BUFFER_LIMIT = 4096 // For when binds create an infinite loop of expansion
-
-    let special (s: string) = LT_LOOKALIKE + s + GT_LOOKALIKE
-
-    let ENTER = special("Enter")
-    let ESC = special("Esc")
+    static let ARBITRARY_BUFFER_LIMIT = 4096 // For when binds create an infinite loop of expansion
 
     let mutable buffer = ""
-    let mutable keymap: ResizeArray<string * string> = ResizeArray()
 
     override this.ToString() : string = buffer
-
-    member this.Bind(string: string, target: string) : unit =
-        let inline special (s: string) = s.Replace("<", "＜").Replace(">", "＞")
-        keymap.Insert(0, (special string, special target))
 
     member this.AddKey(input: ConsoleKeyInfo) : unit =
 
@@ -36,7 +20,7 @@ type CommandBuffer() =
 
         let inline format_displayable_input () : string =
             if input.Modifiers &&& ConsoleModifiers.Alt = ConsoleModifiers.Alt then
-                special(sprintf "A-%c" input.KeyChar)
+                Keymap.SpecialKey(sprintf "A-%c" input.KeyChar)
             else
                 input.KeyChar.ToString()
 
@@ -52,11 +36,11 @@ type CommandBuffer() =
             let alt =
                 if input.Modifiers &&& ConsoleModifiers.Alt = ConsoleModifiers.Alt then "A-" else ""
 
-            special(sprintf "%s%s" alt key)
+            Keymap.SpecialKey(sprintf "%s%s" alt key)
 
         let inline delete_last_keystroke () : unit =
-            if buffer.EndsWith(GT_LOOKALIKE) then
-                let p = buffer.LastIndexOf(LT_LOOKALIKE)
+            if buffer.EndsWith(Keymap.GT) then
+                let p = buffer.LastIndexOf(Keymap.LT)
 
                 if p >= 0 then buffer <- buffer.Substring(0, p) else buffer <- buffer.Substring(0, buffer.Length - 1)
             elif buffer <> "" then
@@ -67,7 +51,7 @@ type CommandBuffer() =
         elif input.Modifiers &&& ConsoleModifiers.Control = ConsoleModifiers.Control then
             ()
         elif input.Key = ConsoleKey.Escape then
-            buffer <- buffer + ESC
+            buffer <- buffer + Keymap.ESC
         elif input.Key = ConsoleKey.Spacebar then
             buffer <- buffer + " "
         elif is_displayable() then
@@ -75,64 +59,37 @@ type CommandBuffer() =
         elif input.Key <> ConsoleKey.None then
             buffer <- buffer + format_special_key()
 
-    member this.DispatchCommands(dispatch_text: string -> unit) : unit =
+    member this.Dispatch(handle_message: string -> unit, keymap: Keymap) : unit =
 
         let inline consume_buffer (shorthand: string, target: string) : unit =
             if buffer.StartsWith(shorthand) then
                 buffer <- target + buffer.Substring(shorthand.Length)
 
-        let inline handle_keymap_and_commands () : unit =
+        let inline consume_keymap (keymap: Keymap) : unit =
             for bind_source, bind_target in keymap do
                 consume_buffer(bind_source, bind_target)
 
-            if buffer.EndsWith(ESC) then
+        let inline handle_keymap_and_messages () : unit =
+            consume_keymap(keymap)
+
+            if buffer.EndsWith(Keymap.ESC) then
                 buffer <- ""
 
-            elif buffer.Contains(ENTER) then
-                let end_of_line = buffer.IndexOf(ENTER)
-                let line = buffer.Substring(0, end_of_line)
-                dispatch_text(line)
-                buffer <- buffer.Substring(end_of_line + ENTER.Length)
+            elif buffer.Contains(Keymap.ENTER) then
+                let end_of_message = buffer.IndexOf(Keymap.ENTER)
+                let command = buffer.Substring(0, end_of_message)
+                buffer <- buffer.Substring(end_of_message + Keymap.ENTER.Length)
+                handle_message(command)
 
         let mutable previous_buffer = buffer
-        handle_keymap_and_commands()
+        handle_keymap_and_messages()
 
         while previous_buffer <> buffer do
             if buffer.Length > ARBITRARY_BUFFER_LIMIT then
                 raise(BufferTooLongException(buffer))
             else
                 previous_buffer <- buffer
-                handle_keymap_and_commands()
+                handle_keymap_and_messages()
 
-    member this.DispatchInitialCommands(config: string seq, dispatch_command: string -> unit) : unit =
-        buffer <- String.concat ENTER config + ENTER
-        this.DispatchCommands(dispatch_command)
-
-
-    member this.SetDefaultBinds() : CommandBuffer =
-        let bind key command = this.Bind(key, ":" + command + ENTER)
-
-        let alias key other_key = this.Bind(key, other_key)
-
-        bind "h" "close"
-        bind "j" "down"
-        bind "k" "up"
-        bind "l" "open"
-        bind "x" "mark_done"
-        bind "X" "unmark_done"
-        bind "e" "edit"
-        bind "r" "rename"
-        bind "dd" "delete"
-        bind "." "describe"
-        bind (special("A-j")) "move_down"
-        bind (special("A-k")) "move_up"
-        bind (special("A-l")) "move_in"
-        bind (special("A-h")) "move_out"
-        bind "G" "show_github_issue"
-
-        alias (special("Down")) "j"
-        alias (special("Up")) "k"
-        alias ESC "h"
-        alias ENTER "l"
-
-        this
+    member this.Append(lines: string seq) : unit =
+        buffer <- String.concat Keymap.ENTER lines + Keymap.ENTER
