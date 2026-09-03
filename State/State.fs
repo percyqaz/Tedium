@@ -11,6 +11,7 @@ type State =
         mutable Scope: TodoElement
         mutable Selected: TodoElement option
         CommandBuffer: CommandBuffer
+        mutable TagColors: Map<string, int>
         mutable StatusLine: string
     }
 
@@ -38,6 +39,7 @@ type State =
             Scope = root.RootElement
             Selected = None
             CommandBuffer = CommandBuffer()
+            TagColors = Map.empty
             StatusLine = ""
         }
 

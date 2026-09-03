@@ -151,6 +151,22 @@ type StateCommands =
         | None -> ()
 
     [<Extension>]
+    static member ColorTag(state: State, args: string) : unit =
+        let split =
+            args.Split('=', 2, StringSplitOptions.TrimEntries ||| StringSplitOptions.RemoveEmptyEntries)
+
+        if split.Length < 2 then
+            state.StatusLine <- "Requires 2 arguments separated by '='"
+        else
+            match Tag.TryParse(split.[0]) with
+            | false, _ -> state.StatusLine <- "Invalid tag"
+            | true, tag ->
+                try
+                    state.TagColors <- state.TagColors.Add(tag.Label, Convert.ToInt32(split.[1], 16))
+                with err ->
+                    state.StatusLine <- err.Message
+
+    [<Extension>]
     static member ShowGitHubIssue(state: State) : unit =
         match state.Selected with
         | None ->
@@ -172,6 +188,7 @@ type StateCommands =
     [<Extension>]
     static member DispatchCommand(state: State, command: string) : unit =
         let split = command.Split(" ", 2, StringSplitOptions.TrimEntries)
+        let args = if split.Length < 2 then "" else split.[1]
 
         match split.[0] with
         | "q"
@@ -191,6 +208,7 @@ type StateCommands =
         | "delete" -> state.Delete()
         | "describe" -> state.Describe()
         | "rename" -> state.Rename()
+        | "color_tag" -> state.ColorTag(args)
         | "show_github_issue" -> state.ShowGitHubIssue()
         | _ -> state.StatusLine <- sprintf "Unrecognised command '%s'" split.[0]
 

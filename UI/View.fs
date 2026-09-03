@@ -30,8 +30,15 @@ type View(state: State) =
             let description_marker =
                 if element.FrontMatter.Count > 0 then " ...".ForeColor(0x88FFFF) else ""
 
-            let tags =
-                item.Tags |> Seq.map(fun i -> " " + i.ToString()) |> String.concat "" |> _.ForeColor(0x66FFFF).Bold()
+            let inline format_tag (tag: Tag) =
+                let color =
+                    match Map.tryFind tag.Label state.TagColors with
+                    | Some i -> i
+                    | None -> 0x66FFFF
+
+                (" " + tag.ToString()).ForeColor(color)
+
+            let tags = item.Tags |> Seq.map format_tag |> String.concat "" |> _.Bold()
 
             let line =
                 sprintf "%s %s%s%s%s" done_marker item.Text tags more_items_marker description_marker
