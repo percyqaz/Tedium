@@ -128,6 +128,7 @@ type CommandBuffer() =
         bind (special("A-k")) "move_up"
         bind (special("A-l")) "move_in"
         bind (special("A-h")) "move_out"
+        bind "G" "show_github_issue"
 
         alias (special("Down")) "j"
         alias (special("Up")) "k"

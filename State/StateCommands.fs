@@ -1,5 +1,6 @@
 namespace Tedium
 
+open System
 open System.Runtime.CompilerServices
 
 type StateCommands =
@@ -150,7 +151,51 @@ type StateCommands =
         | None -> ()
 
     [<Extension>]
-    static member DispatchText(state: State, text: string) : unit =
+    static member ShowGitHubIssue(state: State) : unit =
+        match state.Selected with
+        | None ->
+            match state.Scope.GetTagValue("repo") with
+            | Some(ValueSome _) -> state.StatusLine <- "NYI"
+            | _ -> state.StatusLine <- "No repo provided"
+        | Some item ->
+            match state.Scope.GetTagValue("repo"), item.GetTagValue("gh") with
+            | Some(ValueSome(repo)), Some(ValueSome(issue)) ->
+                match GitHub.get_issue(repo, issue) with
+                | Ok issue ->
+                    Console.Clear()
+                    issue.Print()
+                    Console.ReadKey(true) |> ignore
+                | Error reason -> state.StatusLine <- reason
+            | _, Some _ -> state.StatusLine <- "No repo provided"
+            | _ -> state.StatusLine <- "No repo/issue provided"
+
+    [<Extension>]
+    static member DispatchCommand(state: State, command: string) : unit =
+        let split = command.Split(" ", 2, StringSplitOptions.TrimEntries)
+
+        match split.[0] with
+        | "q"
+        | "q!"
+        | "exit" -> state.Exit()
+        | "up" -> state.NavigateUp()
+        | "down" -> state.NavigateDown()
+        | "close" -> state.NavigateOut()
+        | "open" -> state.NavigateIn()
+        | "move_up" -> state.MoveUp()
+        | "move_down" -> state.MoveDown()
+        | "move_in" -> state.MoveIn()
+        | "move_out" -> state.MoveOut()
+        | "mark_done" -> state.MarkDone()
+        | "unmark_done" -> state.UnmarkDone()
+        | "edit" -> state.Edit()
+        | "delete" -> state.Delete()
+        | "describe" -> state.Describe()
+        | "rename" -> state.Rename()
+        | "show_github_issue" -> state.ShowGitHubIssue()
+        | _ -> state.StatusLine <- sprintf "Unrecognised command '%s'" split.[0]
+
+    [<Extension>]
+    static member DispatchMessage(state: State, text: string) : unit =
         state.MarkDirty()
 
         let inline parse_and_toggle_tag () =
@@ -171,6 +216,7 @@ type StateCommands =
             if data.Items.Count > 0 then
                 state.Selected <- Some data.Items.[data.Items.Count - 1]
 
-        if text.StartsWith('*') then parse_and_add_item()
+        if text.StartsWith(':') then state.DispatchCommand(text.Substring(1))
+        elif text.StartsWith('*') then parse_and_add_item()
         elif text.StartsWith('@') then parse_and_toggle_tag()
         else state.StatusLine <- sprintf "Unrecognised input: %s" text

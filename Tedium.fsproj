@@ -21,7 +21,6 @@
     <Compile Include="State\State.fs" />
     <Compile Include="State\StateCommands.fs" />
     <Compile Include="UI\View.fs" />
-    <Compile Include="CommandDispatcher.fs" />
     <Compile Include="Tedium.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

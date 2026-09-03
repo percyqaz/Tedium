@@ -15,6 +15,19 @@ type TodoItem =
 
         sprintf "%c %s%s" marker this.Text tags
 
+    member this.ToggleTag(tag: Tag) : unit =
+        match this.Tags |> Seq.tryFind(fun t -> t.Label = tag.Label) with
+        | Some tag_already_added ->
+            this.Tags <-
+                if tag.Value <> ValueNone then
+                    this.Tags.Remove(tag_already_added).Add(tag)
+                else
+                    this.Tags.Remove(tag_already_added)
+        | None -> this.Tags <- this.Tags.Add(tag)
+
+    member this.GetTagValue(label: string) : string ValueOption Option =
+        this.Tags |> Seq.tryFind(fun t -> t.Label = label) |> Option.map _.Value
+
 type TodoFile =
     {
         Path: string
@@ -42,23 +55,20 @@ type TodoElement =
 
     member this.ToggleTag(tag: Tag) : unit =
         match this.Guts with
-        | Item item ->
-            match item.Tags |> Seq.tryFind(fun t -> t.Label = tag.Label) with
-            | Some tag_already_added ->
-                item.Tags <-
-                    if tag.Value <> ValueNone then
-                        item.Tags.Remove(tag_already_added).Add(tag)
-                    else
-                        item.Tags.Remove(tag_already_added)
-            | None -> item.Tags <- item.Tags.Add(tag)
+        | Item item -> item.ToggleTag(tag)
         | _ -> ()
+
+    member this.GetTagValue(label: string) : string ValueOption Option =
+        match this.Guts with
+        | Item item -> item.GetTagValue(label)
+        | File _ -> None
 
     member this.MarkDone() : unit =
         match this.Guts with
         | Item item -> item.Done <- true
-        | _ -> ()
+        | File _ -> ()
 
     member this.UnmarkDone() : unit =
         match this.Guts with
         | Item item -> item.Done <- false
-        | _ -> ()
+        | File _ -> ()
