@@ -5,8 +5,8 @@ open System
 [<Struct>]
 type Tag =
     {
-        Label: string
         Value: string voption
+        Label: string
     }
 
     override this.ToString() : string =

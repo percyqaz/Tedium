@@ -36,6 +36,17 @@ module Tedium =
         let state = State.Create(todo_file_path)
         let input_thread = InputThread()
 
+        state.CommandBuffer.Append(
+            [
+                ":color_tag @date = ffff99"
+                ":color_tag @gh = 446688"
+                ":color_tag @repo = 776666"
+                ":color_tag @wish = ffff44"
+            ]
+        )
+
+        state.CommandBuffer.Dispatch(state.DispatchMessage, keymap)
+
         let render = View(state)
         input_thread.Start()
 
