@@ -34,7 +34,6 @@ module Tedium =
 
     let loop (todo_file_path: string) : unit =
         let state = State.Create(todo_file_path)
-        let input_thread = InputThread()
 
         state.CommandBuffer.Append(
             [
@@ -48,9 +47,9 @@ module Tedium =
         state.CommandBuffer.Dispatch(state.DispatchMessage, keymap)
 
         let render = View(state)
-        input_thread.Start()
 
         Console.Write(AnsiCodes.EnterSecondScreen)
+        let input_thread = InputThread()
 
         while state.Running do
             render.Redraw()
@@ -63,5 +62,4 @@ module Tedium =
 
         Console.Write(AnsiCodes.LeaveSecondScreen)
 
-        input_thread.Dispose()
         state.SaveChanges()
