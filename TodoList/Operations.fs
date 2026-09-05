@@ -23,7 +23,7 @@ module Operations =
         dispatch_shell_command("vim -c '+normal! gg$' -c 'set statusline=%=' '" + tmp + "'")
         File.ReadAllLines(tmp)
 
-    let edit_fm (element: TodoElement) : unit =
+    let edit_frontmatter (element: TodoElement) : unit =
         let parsed =
             TodoItemParser.ParseLines(edit_with_vim(element.FrontMatter)).ToTodoFile("")
 

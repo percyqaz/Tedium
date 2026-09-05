@@ -6,27 +6,11 @@ type State =
     {
         mutable Running: bool
         mutable Dirty: bool
-        Root: TodoListRoot
-        mutable Stack: (TodoElement * TodoElement) list
-        mutable Scope: TodoElement
-        mutable Selected: TodoElement option
+        mutable Mode: Mode
         CommandBuffer: CommandBuffer
         mutable TagColors: Map<string, int>
         mutable StatusLine: string
     }
-
-    member this.Open(element: TodoElement) : unit =
-        this.Stack <- (this.Scope, element) :: this.Stack
-        this.Scope <- element
-        this.Selected <- None
-
-    member this.Close() : unit =
-        match this.Stack with
-        | [] -> this.Running <- false
-        | (previous, previous_selection) :: stack ->
-            this.Stack <- stack
-            this.Scope <- previous
-            this.Selected <- Some previous_selection
 
     static member Create(path: string) : State =
         let root = TodoListRoot.Load(path)
@@ -34,10 +18,7 @@ type State =
         {
             Running = true
             Dirty = false
-            Root = root
-            Stack = []
-            Scope = root.RootElement
-            Selected = None
+            Mode = Mode.Normal(NormalMode.Create(root))
             CommandBuffer = CommandBuffer()
             TagColors = Map.empty
             StatusLine = ""
@@ -47,6 +28,6 @@ type State =
 
     member this.SaveChanges() : unit =
         if this.Dirty then
-            this.Root.Save()
+            this.Mode.Root.Save()
             this.StatusLine <- sprintf "Autosaved (%s)" (DateTime.Now.ToShortTimeString())
             this.Dirty <- false

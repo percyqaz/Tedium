@@ -19,7 +19,10 @@
     <Compile Include="TodoList\TodoItemWriter.fs" />
     <Compile Include="TodoList\TodoListRoot.fs" />
     <Compile Include="TodoList\Operations.fs" />
+    <Compile Include="State\Modes\NormalMode.fs" />
+    <Compile Include="State\Modes\Mode.fs" />
     <Compile Include="State\State.fs" />
+    <Compile Include="State\NormalModeCommands.fs" />
     <Compile Include="State\StateCommands.fs" />
     <Compile Include="UI\View.fs" />
     <Compile Include="Tedium.fs" />

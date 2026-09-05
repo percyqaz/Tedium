@@ -6,19 +6,6 @@ type View(state: State) =
 
     let view = ScreenBuffer(Console.BufferHeight - 3)
 
-    member this.RenderFrontMatter() : unit =
-        let is_selected = state.Selected = None
-
-        let inline front_matter (text: string) : string =
-            let colored = text.ForeColor(0x666666)
-            if is_selected then colored.BackColor(0x333311) else colored
-
-        if is_selected then
-            view.CursorHere()
-
-        for fm in state.Scope.FrontMatter do
-            view.Line(front_matter(fm).ClearRestOfLine())
-
     member this.ElementLine(element: TodoElement, is_selected: bool) : string =
         let inline item_line (item: TodoItem, element: TodoElement) : string =
             let done_marker =
@@ -55,23 +42,43 @@ type View(state: State) =
         | Item item -> item_line(item, element)
         | File file -> file_line(file)
 
-    member this.RenderList() : unit =
+    member this.RenderList(nm: NormalMode) : unit =
 
-        for item in state.Scope.Items do
-            let is_selected = state.Selected = Some item
+        for item in nm.Scope.Items do
+            let is_selected = nm.Selected = Some item
 
             view.Line(this.ElementLine(item, is_selected), is_selected)
 
-    member this.TagLine() : string =
-        let loc = state.Scope.ToString().ForeColor(0xFF8888)
-        sprintf "%s (%i)" loc state.Scope.Items.Count
+    member this.RenderFrontMatter(nm: NormalMode) : unit =
+        let is_selected = nm.Selected = None
+
+        let inline front_matter (text: string) : string =
+            let colored = text.ForeColor(0x666666)
+            if is_selected then colored.BackColor(0x333311) else colored
+
+        if is_selected then
+            view.CursorHere()
+
+        for fm in nm.Scope.FrontMatter do
+            view.Line(front_matter(fm).ClearRestOfLine())
+
+    member this.RenderNormalMode(nm: NormalMode) : unit =
+        let tagline =
+            let loc = nm.Scope.ToString().ForeColor(0xFF8888)
+            sprintf "%s (%i)" loc nm.Scope.Items.Count
+
+        Console.WriteLine(tagline.ClearRestOfLine())
+        this.RenderFrontMatter(nm)
+        this.RenderList(nm)
 
     member this.Redraw() : unit =
-        Console.Write(AnsiCodes.CursorToOrigin)
-        Console.WriteLine(this.TagLine().ClearRestOfLine())
         view.Height <- Console.BufferHeight - 3
-        this.RenderFrontMatter()
-        this.RenderList()
+        Console.Write(AnsiCodes.CursorToOrigin)
+
+        match state.Mode with
+        | Mode.Normal nm -> this.RenderNormalMode(nm)
+
         view.Draw()
+
         Console.WriteLine("Tedium ".ForeColor(0xFF8888).Bold() + state.StatusLine.ForeColor(0x444444).ClearRestOfLine())
         Console.Write(state.CommandBuffer.ToString().ForeColor(0x88FF88).Bold().ClearRestOfLine())

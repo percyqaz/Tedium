@@ -9,26 +9,26 @@ module Tedium =
         let bind key command = keymap.AliasCommand(key, command)
         let alias key other_key = keymap.Alias(key, other_key)
 
-        bind "h" "close"
+        bind "h" "left"
         bind "j" "down"
         bind "k" "up"
-        bind "l" "open"
+        bind "l" "right"
+        bind Keymap.ESC "close"
+        bind Keymap.ENTER "open"
         bind "x" "mark_done"
         bind "X" "unmark_done"
         bind "e" "edit"
         bind "r" "rename"
         bind "dd" "delete"
         bind "." "describe"
+        bind (Keymap.SpecialKey("A-h")) "move_left"
         bind (Keymap.SpecialKey("A-j")) "move_down"
         bind (Keymap.SpecialKey("A-k")) "move_up"
-        bind (Keymap.SpecialKey("A-l")) "move_in"
-        bind (Keymap.SpecialKey("A-h")) "move_out"
+        bind (Keymap.SpecialKey("A-l")) "move_right"
         bind "G" "show_github_issue"
 
         alias (Keymap.SpecialKey("Down")) "j"
         alias (Keymap.SpecialKey("Up")) "k"
-        alias Keymap.ESC "h"
-        alias Keymap.ENTER "l"
 
         keymap
 

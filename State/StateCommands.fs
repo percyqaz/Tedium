@@ -10,145 +10,122 @@ type StateCommands =
 
     [<Extension>]
     static member NavigateUp(state: State) : unit =
-        match state.Selected with
-        | Some item ->
-            let index = state.Scope.Items.IndexOf(item)
-            if index = 0 then state.Selected <- None else state.Selected <- Some state.Scope.Items.[index - 1]
-        | None ->
-            if state.Scope.Items.Count > 0 then
-                state.Selected <- Some state.Scope.Items.[state.Scope.Items.Count - 1]
+        match state.Mode with
+        | Mode.Normal nm -> nm.NavigateUp()
 
     [<Extension>]
     static member NavigateDown(state: State) : unit =
-        match state.Selected with
-        | Some item ->
-            let index = state.Scope.Items.IndexOf(item)
-
-            if index + 1 >= state.Scope.Items.Count then
-                state.Selected <- None
-            else
-                state.Selected <- Some state.Scope.Items.[index + 1]
-        | None ->
-            if state.Scope.Items.Count > 0 then
-                state.Selected <- Some state.Scope.Items.[0]
+        match state.Mode with
+        | Mode.Normal nm -> nm.NavigateDown()
 
     [<Extension>]
-    static member NavigateIn(state: State) : unit =
-        match state.Selected with
-        | Some item -> state.Open(item)
-        | None -> ()
+    static member NavigateRight(state: State) : unit =
+        match state.Mode with
+        | Mode.Normal nm -> nm.NavigateRight()
 
     [<Extension>]
-    static member NavigateOut(state: State) : unit = state.Close()
+    static member NavigateLeft(state: State) : unit =
+        match state.Mode with
+        | Mode.Normal nm -> nm.NavigateLeft()
+
+    [<Extension>]
+    static member Open(state: State) : unit =
+        match state.Mode with
+        | Mode.Normal nm -> nm.Open()
+
+    [<Extension>]
+    static member Close(state: State) : unit =
+        match state.Mode with
+        | Mode.Normal nm ->
+            if not(nm.Close()) then
+                state.Running <- false
 
     [<Extension>]
     static member MoveUp(state: State) : unit =
         state.MarkDirty()
 
-        match state.Selected with
-        | Some item ->
-            let index = state.Scope.Items.IndexOf(item)
-
-            if index > 0 then
-                state.Scope.Items.RemoveAt(index)
-                state.Scope.Items.Insert(index - 1, item)
-        | None -> ()
+        match state.Mode with
+        | Mode.Normal nm -> nm.MoveUp()
 
     [<Extension>]
     static member MoveDown(state: State) : unit =
         state.MarkDirty()
 
-        match state.Selected with
-        | Some item ->
-            let index = state.Scope.Items.IndexOf(item)
-
-            if index + 1 < state.Scope.Items.Count then
-                state.Scope.Items.RemoveAt(index)
-                state.Scope.Items.Insert(index + 1, item)
-        | None -> ()
+        match state.Mode with
+        | Mode.Normal nm -> nm.MoveDown()
 
     [<Extension>]
-    static member MoveIn(state: State) : unit =
+    static member MoveRight(state: State) : unit =
         state.MarkDirty()
 
-        match state.Selected with
-        | Some item ->
-            let index = state.Scope.Items.IndexOf(item)
-
-            if index > 0 then
-                let target = state.Scope.Items.[index - 1]
-                target.Items.Add(item)
-                state.Scope.Items.Remove(item) |> ignore
-                state.Selected <- Some target
-        | None -> ()
+        match state.Mode with
+        | Mode.Normal nm -> nm.MoveRight()
 
     [<Extension>]
-    static member MoveOut(state: State) : unit =
+    static member MoveLeft(state: State) : unit =
         state.MarkDirty()
 
-        match state.Selected with
-        | Some item ->
-            match state.Stack with
-            | (parent, container) :: _ ->
-                let child_index = state.Scope.Items.IndexOf(item)
-                let index = parent.Items.IndexOf(container)
-
-                if container.Items.Remove(item) then
-                    parent.Items.Insert(index + 1, item)
-
-                    state.Selected <-
-                        if child_index < state.Scope.Items.Count then Some state.Scope.Items.[child_index] else None
-            | [] -> ()
-        | None -> ()
+        match state.Mode with
+        | Mode.Normal nm -> nm.MoveLeft()
 
     [<Extension>]
     static member Delete(state: State) : unit =
         state.MarkDirty()
 
-        match state.Selected with
-        | Some item ->
-            state.NavigateUp()
-
-            if state.Scope.Items.Remove(item) then
-                state.StatusLine <- sprintf "Deleted %O" item
-        | None -> state.Scope.FrontMatter.Clear()
+        match state.Mode with
+        | Mode.Normal nm -> nm.Delete()
 
     [<Extension>]
     static member MarkDone(state: State) : unit =
         state.MarkDirty()
-        state.Selected |> Option.iter _.MarkDone()
+        state.Mode.Selected |> Option.iter _.MarkDone()
 
     [<Extension>]
     static member UnmarkDone(state: State) : unit =
         state.MarkDirty()
-        state.Selected |> Option.iter _.UnmarkDone()
+        state.Mode.Selected |> Option.iter _.UnmarkDone()
 
     [<Extension>]
     static member Edit(state: State) : unit =
         state.MarkDirty()
 
-        match state.Selected with
-        | Some item ->
-            state.NavigateUp()
-            Operations.edit(state.Scope, item)
-            state.NavigateDown()
-        | None -> Operations.edit_fm(state.Scope)
+        match state.Mode with
+        | Mode.Normal nm -> nm.Edit()
 
     [<Extension>]
     static member Describe(state: State) : unit =
         state.MarkDirty()
 
-        match state.Selected with
-        | Some item -> Operations.edit_contents(item)
-        | None -> Operations.edit_fm(state.Scope)
+        match state.Mode with
+        | Mode.Normal nm -> nm.Describe()
 
     [<Extension>]
     static member Rename(state: State) : unit =
         state.MarkDirty()
 
-        match state.Selected with
-        | Some item -> Operations.edit_name(state.Scope, item)
-        | None -> ()
+        match state.Mode with
+        | Mode.Normal nm -> nm.Rename()
+
+    [<Extension>]
+    static member ShowGitHubIssue(state: State) : unit =
+        match state.Mode with
+        | Mode.Normal nm ->
+            match nm.Selected with
+            | None ->
+                match nm.Scope.GetTagValue("repo") with
+                | Some(ValueSome _) -> state.StatusLine <- "NYI"
+                | _ -> state.StatusLine <- "No repo provided"
+            | Some item ->
+                match nm.Scope.GetTagValue("repo"), item.GetTagValue("gh") with
+                | Some(ValueSome(repo)), Some(ValueSome(issue)) ->
+                    match GitHub.get_issue(repo, issue) with
+                    | Ok issue ->
+                        Console.Clear()
+                        issue.Print()
+                        Console.ReadKey(true) |> ignore
+                    | Error reason -> state.StatusLine <- reason
+                | _, Some _ -> state.StatusLine <- "No repo provided"
+                | _ -> state.StatusLine <- "No repo/issue provided"
 
     [<Extension>]
     static member ColorTag(state: State, args: string) : unit =
@@ -167,25 +144,6 @@ type StateCommands =
                     state.StatusLine <- err.Message
 
     [<Extension>]
-    static member ShowGitHubIssue(state: State) : unit =
-        match state.Selected with
-        | None ->
-            match state.Scope.GetTagValue("repo") with
-            | Some(ValueSome _) -> state.StatusLine <- "NYI"
-            | _ -> state.StatusLine <- "No repo provided"
-        | Some item ->
-            match state.Scope.GetTagValue("repo"), item.GetTagValue("gh") with
-            | Some(ValueSome(repo)), Some(ValueSome(issue)) ->
-                match GitHub.get_issue(repo, issue) with
-                | Ok issue ->
-                    Console.Clear()
-                    issue.Print()
-                    Console.ReadKey(true) |> ignore
-                | Error reason -> state.StatusLine <- reason
-            | _, Some _ -> state.StatusLine <- "No repo provided"
-            | _ -> state.StatusLine <- "No repo/issue provided"
-
-    [<Extension>]
     static member DispatchCommand(state: State, command: string) : unit =
         let split = command.Split(" ", 2, StringSplitOptions.TrimEntries)
         let args = if split.Length < 2 then "" else split.[1]
@@ -196,12 +154,14 @@ type StateCommands =
         | "exit" -> state.Exit()
         | "up" -> state.NavigateUp()
         | "down" -> state.NavigateDown()
-        | "close" -> state.NavigateOut()
-        | "open" -> state.NavigateIn()
+        | "left" -> state.NavigateLeft()
+        | "right" -> state.NavigateRight()
+        | "open" -> state.Open()
+        | "close" -> state.Close()
         | "move_up" -> state.MoveUp()
         | "move_down" -> state.MoveDown()
-        | "move_in" -> state.MoveIn()
-        | "move_out" -> state.MoveOut()
+        | "move_right" -> state.MoveRight()
+        | "move_left" -> state.MoveLeft()
         | "mark_done" -> state.MarkDone()
         | "unmark_done" -> state.UnmarkDone()
         | "edit" -> state.Edit()
@@ -214,25 +174,25 @@ type StateCommands =
 
     [<Extension>]
     static member DispatchMessage(state: State, text: string) : unit =
-        state.MarkDirty()
 
         let inline parse_and_toggle_tag () =
+            state.MarkDirty()
+
             match Tag.TryParse(text) with
-            | true, tag -> state.Selected |> Option.iter _.ToggleTag(tag)
+            | true, tag -> state.Mode.Selected |> Option.iter _.ToggleTag(tag)
             | false, _ -> ()
 
         let inline parse_and_add_item () : unit =
+            state.MarkDirty()
             let data = TodoItemParser.ParseLines([ text ]).ToTodoFile("")
 
-            let index =
-                match state.Selected with
-                | Some item -> state.Scope.Items.IndexOf(item)
-                | None -> -1
-
-            state.Scope.Items.InsertRange(index + 1, data.Items)
-
-            if data.Items.Count > 0 then
-                state.Selected <- Some data.Items.[data.Items.Count - 1]
+            match data.Items |> Seq.tryExactlyOne with
+            | Some new_item ->
+                match state.Mode with
+                | Mode.Normal nm ->
+                    state.MarkDirty()
+                    nm.InsertNewItem(new_item)
+            | None -> ()
 
         if text.StartsWith(':') then state.DispatchCommand(text.Substring(1))
         elif text.StartsWith('*') then parse_and_add_item()
