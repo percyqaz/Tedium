@@ -1,12 +1,14 @@
 namespace Tedium
 
+open System
+
 type SearchMode =
     {
         Root: TodoListRoot
         mutable Stack: (TodoElement * int) list
         mutable Scope: TodoElement
         mutable Selection: int option
-        Items: TodoElement array
+        mutable Items: TodoElement array
         Query: SearchQuery
     }
 
@@ -21,16 +23,40 @@ type SearchMode =
                 | None -> None
         }
 
+    static member FromNormalMode(nm: NormalMode, query: string) : SearchMode =
+        let parsed_query = SearchQuery.Parse(query)
+        let items = parsed_query.Apply(nm.Scope.Items)
+
+        {
+            Root = nm.Root
+            Stack = nm.Stack
+            Scope = nm.Scope
+            Selection =
+                let fallback = if items.Length = 1 then Some 0 else None
+
+                match nm.Selected with
+                | Some item ->
+                    Array.IndexOf(items, item)
+                    |> function
+                        | -1 -> fallback
+                        | x -> Some x
+                | None -> fallback
+            Query = parsed_query
+            Items = items
+        }
+
     member this.Selected: TodoElement option =
         match this.Selection with
-        | Some index -> Some(this.Scope.Items.[index])
+        | Some index -> Some(this.Items.[index])
         | None -> None
 
     member this.Open() : unit =
-        match this.Selection with
-        | Some index ->
-            this.Stack <- (this.Scope, index) :: this.Stack
-            this.Scope <- this.Scope.Items.[index]
+        match this.Selected with
+        | Some item ->
+            let original_index = this.Scope.Items.IndexOf(item)
+            this.Stack <- (this.Scope, original_index) :: this.Stack
+            this.Scope <- item
+            this.Items <- this.Query.Apply(this.Scope.Items)
             this.Selection <- None
         | None -> ()
 
@@ -40,22 +66,22 @@ type SearchMode =
         | (previous, previous_selection) :: stack ->
             this.Stack <- stack
             this.Scope <- previous
-            this.Selection <- Some previous_selection
+            this.Items <- this.Query.Apply(this.Scope.Items)
+
+            this.Selection <-
+                let fallback = if this.Items.Length = 1 then Some 0 else None
+
+                match Array.IndexOf(this.Items, this.Scope.Items.[previous_selection]) with
+                | -1 -> fallback
+                | x -> Some x
+
             true
 
     member this.InsertNewItem(new_item: TodoElement) : unit =
-        let index = this.Selection |> Option.defaultValue -1
+        let index =
+            match this.Selected with
+            | Some item -> this.Scope.Items.IndexOf(item)
+            | None -> -1
+
         this.Scope.Items.Insert(index + 1, new_item)
-        this.Selection <- Some(index + 1)
-
-    static member FromNormalMode(nm: NormalMode, query: string) : SearchMode =
-        let parsed_query = SearchQuery.Parse(query)
-
-        {
-            Root = nm.Root
-            Stack = nm.Stack
-            Scope = nm.Scope
-            Selection = nm.Selection
-            Query = parsed_query
-            Items = parsed_query.Apply(nm.Scope.Items)
-        }
+        this.Selection <- Some((this.Selection |> Option.defaultValue -1) + 1)

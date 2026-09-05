@@ -12,26 +12,31 @@ type StateCommands =
     static member NavigateUp(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateUp()
+        | Mode.Search sm -> sm.NavigateUp()
 
     [<Extension>]
     static member NavigateDown(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateDown()
+        | Mode.Search sm -> sm.NavigateDown()
 
     [<Extension>]
     static member NavigateRight(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateRight()
+        | Mode.Search sm -> sm.NavigateRight()
 
     [<Extension>]
     static member NavigateLeft(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateLeft()
+        | Mode.Search sm -> sm.NavigateLeft()
 
     [<Extension>]
     static member Open(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.Open()
+        | Mode.Search sm -> sm.Open()
 
     [<Extension>]
     static member Close(state: State) : unit =
@@ -39,6 +44,9 @@ type StateCommands =
         | Mode.Normal nm ->
             if not(nm.Close()) then
                 state.Running <- false
+        | Mode.Search sm ->
+            if not(sm.Close()) then
+                state.Mode <- Mode.Normal(sm.ToNormalMode())
 
     [<Extension>]
     static member MoveUp(state: State) : unit =
@@ -46,6 +54,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.MoveUp()
+        | Mode.Search sm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member MoveDown(state: State) : unit =
@@ -53,6 +62,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.MoveDown()
+        | Mode.Search sm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member MoveRight(state: State) : unit =
@@ -60,6 +70,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.MoveRight()
+        | Mode.Search sm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member MoveLeft(state: State) : unit =
@@ -67,6 +78,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.MoveLeft()
+        | Mode.Search sm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member Delete(state: State) : unit =
@@ -74,6 +86,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.Delete()
+        | Mode.Search sm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member MarkDone(state: State) : unit =
@@ -91,6 +104,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.Edit()
+        | Mode.Search sm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member Describe(state: State) : unit =
@@ -98,6 +112,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.Describe()
+        | Mode.Search sm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member Rename(state: State) : unit =
@@ -105,27 +120,35 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.Rename()
+        | Mode.Search sm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member ShowGitHubIssue(state: State) : unit =
-        match state.Mode with
-        | Mode.Normal nm ->
-            match nm.Selected with
-            | None ->
-                match nm.Scope.GetTagValue("repo") with
-                | Some(ValueSome _) -> state.StatusLine <- "NYI"
-                | _ -> state.StatusLine <- "No repo provided"
-            | Some item ->
-                match nm.Scope.GetTagValue("repo"), item.GetTagValue("gh") with
-                | Some(ValueSome(repo)), Some(ValueSome(issue)) ->
-                    match GitHub.get_issue(repo, issue) with
-                    | Ok issue ->
-                        Console.Clear()
-                        issue.Print()
-                        Console.ReadKey(true) |> ignore
-                    | Error reason -> state.StatusLine <- reason
-                | _, Some _ -> state.StatusLine <- "No repo provided"
-                | _ -> state.StatusLine <- "No repo/issue provided"
+        let scope =
+            match state.Mode with
+            | Mode.Normal nm -> nm.Scope
+            | Mode.Search sm -> sm.Scope
+
+        match state.Mode.Selected with
+        | None ->
+            match scope.GetTagValue("repo") with
+            | Some(ValueSome _) -> state.StatusLine <- "NYI"
+            | _ -> state.StatusLine <- "No repo provided"
+        | Some item ->
+            match scope.GetTagValue("repo"), item.GetTagValue("gh") with
+            | Some(ValueSome(repo)), Some(ValueSome(issue)) ->
+                match GitHub.get_issue(repo, issue) with
+                | Ok issue ->
+                    Console.Clear()
+                    issue.Print()
+                    Console.ReadKey(true) |> ignore
+                | Error reason -> state.StatusLine <- reason
+            | _, Some _ -> state.StatusLine <- "No repo provided"
+            | _ -> state.StatusLine <- "No repo/issue provided"
+
+    [<Extension>]
+    static member Search(state: State) : unit =
+        state.SearchBufferFocused <- not state.SearchBufferFocused
 
     [<Extension>]
     static member ColorTag(state: State, args: string) : unit =
@@ -164,6 +187,7 @@ type StateCommands =
         | "move_left" -> state.MoveLeft()
         | "mark_done" -> state.MarkDone()
         | "unmark_done" -> state.UnmarkDone()
+        | "search" -> state.Search()
         | "edit" -> state.Edit()
         | "delete" -> state.Delete()
         | "describe" -> state.Describe()
@@ -183,15 +207,15 @@ type StateCommands =
             | false, _ -> ()
 
         let inline parse_and_add_item () : unit =
-            state.MarkDirty()
             let data = TodoItemParser.ParseLines([ text ]).ToTodoFile("")
 
             match data.Items |> Seq.tryExactlyOne with
             | Some new_item ->
+                state.MarkDirty()
+
                 match state.Mode with
-                | Mode.Normal nm ->
-                    state.MarkDirty()
-                    nm.InsertNewItem(new_item)
+                | Mode.Normal nm -> nm.InsertNewItem(new_item)
+                | Mode.Search sm -> sm.InsertNewItem(new_item)
             | None -> ()
 
         if text.StartsWith(':') then state.DispatchCommand(text.Substring(1))

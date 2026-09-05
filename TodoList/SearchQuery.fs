@@ -26,7 +26,7 @@ type SearchQuery =
     static member Parse(text: string) : SearchQuery =
         let words = text.Split(' ', StringSplitOptions.TrimEntries)
 
-        let rec inline parse_filter (word: string) : Filter =
+        let rec parse_filter (word: string) : Filter =
             if word.StartsWith('-') then
                 Invert(parse_filter(word.Substring(1)))
             elif word.StartsWith('@') then

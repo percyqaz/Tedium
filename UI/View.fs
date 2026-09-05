@@ -42,15 +42,15 @@ type View(state: State) =
         | Item item -> item_line(item, element)
         | File file -> file_line(file)
 
-    member this.RenderList(nm: NormalMode) : unit =
+    member this.RenderList(items: TodoElement seq, selected: TodoElement option) : unit =
 
-        for item in nm.Scope.Items do
-            let is_selected = nm.Selected = Some item
+        for item in items do
+            let is_selected = Some item = selected
 
             view.Line(this.ElementLine(item, is_selected), is_selected)
 
-    member this.RenderFrontMatter(nm: NormalMode) : unit =
-        let is_selected = nm.Selected = None
+    member this.RenderFrontMatter(fm: ResizeArray<string>, selected: TodoElement option) : unit =
+        let is_selected = selected = None
 
         let inline front_matter (text: string) : string =
             let colored = text.ForeColor(0x666666)
@@ -59,26 +59,43 @@ type View(state: State) =
         if is_selected then
             view.CursorHere()
 
-        for fm in nm.Scope.FrontMatter do
-            view.Line(front_matter(fm).ClearRestOfLine())
+        for line in fm do
+            view.Line(front_matter(line).ClearRestOfLine())
 
     member this.RenderNormalMode(nm: NormalMode) : unit =
+        view.Height <- Console.BufferHeight - 3
+
         let tagline =
             let loc = nm.Scope.ToString().ForeColor(0xFF8888)
             sprintf "%s (%i)" loc nm.Scope.Items.Count
 
         Console.WriteLine(tagline.ClearRestOfLine())
-        this.RenderFrontMatter(nm)
-        this.RenderList(nm)
+        this.RenderFrontMatter(nm.Scope.FrontMatter, nm.Selected)
+        this.RenderList(nm.Scope.Items, nm.Selected)
+        view.Draw()
+
+    member this.RenderSearchMode(sm: SearchMode) : unit =
+        view.Height <- Console.BufferHeight - 3
+
+        let tagline =
+            let loc = sm.Scope.ToString().ForeColor(0xFF8888)
+            sprintf "%s (%i results for: %O)" loc sm.Items.Length state.SearchBuffer
+
+        Console.WriteLine(tagline.ClearRestOfLine())
+        this.RenderFrontMatter(sm.Scope.FrontMatter, sm.Selected)
+        this.RenderList(sm.Items, sm.Selected)
+        view.Draw()
 
     member this.Redraw() : unit =
-        view.Height <- Console.BufferHeight - 3
         Console.Write(AnsiCodes.CursorToOrigin)
 
         match state.Mode with
         | Mode.Normal nm -> this.RenderNormalMode(nm)
-
-        view.Draw()
+        | Mode.Search sm -> this.RenderSearchMode(sm)
 
         Console.WriteLine("Tedium ".ForeColor(0xFF8888).Bold() + state.StatusLine.ForeColor(0x444444).ClearRestOfLine())
-        Console.Write(state.CommandBuffer.ToString().ForeColor(0x88FF88).Bold().ClearRestOfLine())
+
+        if state.SearchBufferFocused then
+            Console.Write(state.SearchBuffer.ToString().ForeColor(0x8888FF).Bold().ClearRestOfLine())
+        else
+            Console.Write(state.CommandBuffer.ToString().ForeColor(0x88FF88).Bold().ClearRestOfLine())

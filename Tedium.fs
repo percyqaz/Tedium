@@ -21,6 +21,7 @@ module Tedium =
         bind "r" "rename"
         bind "dd" "delete"
         bind "." "describe"
+        bind (Keymap.SpecialKey("Tab")) "search"
         bind (Keymap.SpecialKey("A-h")) "move_left"
         bind (Keymap.SpecialKey("A-j")) "move_down"
         bind (Keymap.SpecialKey("A-k")) "move_up"
