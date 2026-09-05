@@ -17,3 +17,8 @@ type Mode =
     member this.Selection: int option =
         match this with
         | Normal nm -> nm.Selection
+
+    member this.SearchBufferChanged(query: string) : Mode =
+        match this with
+        | Normal nm -> Normal nm
+//if query <> "" then SearchMode.FromNormalMode(nm, query) else nm

@@ -56,7 +56,7 @@ module Tedium =
 
             match input_thread.TryReadKey(2000) with
             | true, input ->
-                state.CommandBuffer.AddKey(input)
+                state.AddKey(input)
                 state.CommandBuffer.Dispatch(state.DispatchMessage, keymap)
             | false, _ -> state.SaveChanges()
 

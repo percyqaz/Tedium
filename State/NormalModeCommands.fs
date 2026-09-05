@@ -1,6 +1,5 @@
 namespace Tedium
 
-open System.Linq
 open System.Runtime.CompilerServices
 
 type NormalModeCommands =
