@@ -77,3 +77,62 @@ type SearchModeCommands =
                     make_tree_swap()
                     make_array_swap()
         | None -> ()
+
+    [<Extension>]
+    static member MoveRight(sm: SearchMode) : unit =
+        match sm.Selection with
+        | Some index when index > 0 ->
+            let item = sm.Items.[index]
+            let target_parent = sm.Items.[index - 1]
+            target_parent.Items.Add(item)
+            sm.Scope.Items.Remove(item) |> ignore
+            sm.Items <- sm.Query.Apply(sm.Scope.Items)
+            sm.Selection <- Some(index - 1)
+        | _ -> ()
+
+    [<Extension>]
+    static member MoveLeft(sm: SearchMode) : unit =
+        match sm.Selection with
+        | Some child_index ->
+            match sm.Stack with
+            | (parent, parent_index) :: _ ->
+                let item = sm.Items.[child_index]
+                parent.Items.Insert(parent_index + 1, item)
+                sm.Scope.Items.Remove(item) |> ignore
+                sm.Items <- sm.Query.Apply(sm.Scope.Items)
+                sm.Selection <- if child_index < sm.Items.Length then Some child_index else None
+            | [] -> ()
+        | None -> ()
+
+    [<Extension>]
+    static member Delete(sm: SearchMode) : unit =
+        match sm.Selected with
+        | Some item ->
+            sm.NavigateUp()
+            ignore(sm.Scope.Items.Remove(item))
+            sm.Items <- sm.Query.Apply(sm.Scope.Items)
+        | None -> sm.Scope.FrontMatter.Clear()
+
+    [<Extension>]
+    static member Edit(sm: SearchMode) : unit =
+        match sm.Selected with
+        | Some item -> Operations.edit(sm.Scope, item)
+        | None -> Operations.edit_frontmatter(sm.Scope)
+
+        sm.Items <- sm.Query.Apply(sm.Scope.Items)
+
+    [<Extension>]
+    static member Describe(sm: SearchMode) : unit =
+        match sm.Selected with
+        | Some item -> Operations.edit_contents(item)
+        | None -> Operations.edit_frontmatter(sm.Scope)
+
+        sm.Items <- sm.Query.Apply(sm.Scope.Items)
+
+    [<Extension>]
+    static member Rename(sm: SearchMode) : unit =
+        match sm.Selected with
+        | Some item -> Operations.edit_name(sm.Scope, item)
+        | None -> ()
+
+        sm.Items <- sm.Query.Apply(sm.Scope.Items)

@@ -70,7 +70,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.MoveRight()
-        | Mode.Search sm -> state.StatusLine <- "NYI"
+        | Mode.Search sm -> sm.MoveRight()
 
     [<Extension>]
     static member MoveLeft(state: State) : unit =
@@ -78,15 +78,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.MoveLeft()
-        | Mode.Search sm -> state.StatusLine <- "NYI"
-
-    [<Extension>]
-    static member Delete(state: State) : unit =
-        state.MarkDirty()
-
-        match state.Mode with
-        | Mode.Normal nm -> nm.Delete()
-        | Mode.Search sm -> state.StatusLine <- "NYI"
+        | Mode.Search sm -> sm.MoveLeft()
 
     [<Extension>]
     static member MarkDone(state: State) : unit =
@@ -99,12 +91,20 @@ type StateCommands =
         state.Mode.Selected |> Option.iter _.UnmarkDone()
 
     [<Extension>]
+    static member Delete(state: State) : unit =
+        state.MarkDirty()
+
+        match state.Mode with
+        | Mode.Normal nm -> nm.Delete()
+        | Mode.Search sm -> sm.Delete()
+
+    [<Extension>]
     static member Edit(state: State) : unit =
         state.MarkDirty()
 
         match state.Mode with
         | Mode.Normal nm -> nm.Edit()
-        | Mode.Search sm -> state.StatusLine <- "NYI"
+        | Mode.Search sm -> sm.Edit()
 
     [<Extension>]
     static member Describe(state: State) : unit =
@@ -112,7 +112,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.Describe()
-        | Mode.Search sm -> state.StatusLine <- "NYI"
+        | Mode.Search sm -> sm.Describe()
 
     [<Extension>]
     static member Rename(state: State) : unit =
@@ -120,7 +120,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.Rename()
-        | Mode.Search sm -> state.StatusLine <- "NYI"
+        | Mode.Search sm -> sm.Rename()
 
     [<Extension>]
     static member ShowGitHubIssue(state: State) : unit =
