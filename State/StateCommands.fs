@@ -54,7 +54,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.MoveUp()
-        | Mode.Search sm -> state.StatusLine <- "NYI"
+        | Mode.Search sm -> sm.MoveUp()
 
     [<Extension>]
     static member MoveDown(state: State) : unit =
@@ -62,7 +62,7 @@ type StateCommands =
 
         match state.Mode with
         | Mode.Normal nm -> nm.MoveDown()
-        | Mode.Search sm -> state.StatusLine <- "NYI"
+        | Mode.Search sm -> sm.MoveDown()
 
     [<Extension>]
     static member MoveRight(state: State) : unit =
