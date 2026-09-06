@@ -50,13 +50,16 @@ type SearchMode =
         | Some index -> Some(this.Results.[index])
         | None -> None
 
+    member this.Refresh() : unit =
+        this.Results <- this.Query.Apply(this.Scope.Items)
+
     member this.Open() : unit =
         match this.Selected with
         | Some item ->
             let original_index = this.Scope.Items.IndexOf(item)
             this.Stack <- (this.Scope, original_index) :: this.Stack
             this.Scope <- item
-            this.Results <- this.Query.Apply(this.Scope.Items)
+            this.Refresh()
             this.Selection <- None
         | None -> ()
 
@@ -66,7 +69,7 @@ type SearchMode =
         | (previous, previous_selection) :: stack ->
             this.Stack <- stack
             this.Scope <- previous
-            this.Results <- this.Query.Apply(this.Scope.Items)
+            this.Refresh()
 
             this.Selection <-
                 let fallback = if this.Results.Length = 1 then Some 0 else None
@@ -84,4 +87,5 @@ type SearchMode =
             | None -> -1
 
         this.Scope.Items.Insert(index + 1, new_item)
+        this.Refresh()
         this.Selection <- Some((this.Selection |> Option.defaultValue -1) + 1)

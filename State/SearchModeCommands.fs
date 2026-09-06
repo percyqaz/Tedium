@@ -86,7 +86,7 @@ type SearchModeCommands =
             let target_parent = sm.Results.[index - 1]
             target_parent.Items.Add(item)
             sm.Scope.Items.Remove(item) |> ignore
-            sm.Results <- sm.Query.Apply(sm.Scope.Items)
+            sm.Refresh()
             sm.Selection <- Some(index - 1)
         | _ -> ()
 
@@ -99,7 +99,7 @@ type SearchModeCommands =
                 let item = sm.Results.[child_index]
                 parent.Items.Insert(parent_index + 1, item)
                 sm.Scope.Items.Remove(item) |> ignore
-                sm.Results <- sm.Query.Apply(sm.Scope.Items)
+                sm.Refresh()
                 sm.Selection <- if child_index < sm.Results.Length then Some child_index else None
             | [] -> ()
         | None -> ()
@@ -110,29 +110,29 @@ type SearchModeCommands =
         | Some item ->
             sm.NavigateUp()
             ignore(sm.Scope.Items.Remove(item))
-            sm.Results <- sm.Query.Apply(sm.Scope.Items)
+            sm.Refresh()
         | None -> sm.Scope.FrontMatter.Clear()
 
     [<Extension>]
     static member Edit(sm: SearchMode) : unit =
         match sm.Selected with
-        | Some item -> Operations.edit(sm.Scope, item)
+        | Some item ->
+            Operations.edit(sm.Scope, item)
+            sm.Refresh()
         | None -> Operations.edit_frontmatter(sm.Scope)
-
-        sm.Results <- sm.Query.Apply(sm.Scope.Items)
 
     [<Extension>]
     static member Describe(sm: SearchMode) : unit =
         match sm.Selected with
-        | Some item -> Operations.edit_contents(item)
+        | Some item ->
+            Operations.edit_contents(item)
+            sm.Refresh()
         | None -> Operations.edit_frontmatter(sm.Scope)
-
-        sm.Results <- sm.Query.Apply(sm.Scope.Items)
 
     [<Extension>]
     static member Rename(sm: SearchMode) : unit =
         match sm.Selected with
-        | Some item -> Operations.edit_name(sm.Scope, item)
+        | Some item ->
+            Operations.edit_name(sm.Scope, item)
+            sm.Refresh()
         | None -> ()
-
-        sm.Results <- sm.Query.Apply(sm.Scope.Items)
