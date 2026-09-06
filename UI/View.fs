@@ -96,6 +96,6 @@ type View(state: State) =
         Console.WriteLine("Tedium ".ForeColor(0xFF8888).Bold() + state.StatusLine.ForeColor(0x444444).ClearRestOfLine())
 
         if state.SearchBufferFocused then
-            Console.Write(state.SearchBuffer.ToString().ForeColor(0x8888FF).Bold().ClearRestOfLine())
+            Console.Write(("SEARCH: " + state.SearchBuffer.ToString()).ForeColor(0x8888FF).Bold().ClearRestOfLine())
         else
             Console.Write(state.CommandBuffer.ToString().ForeColor(0x88FF88).Bold().ClearRestOfLine())
