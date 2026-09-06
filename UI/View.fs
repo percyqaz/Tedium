@@ -67,11 +67,11 @@ type View(state: State) =
 
         let tagline =
             let loc = nm.Scope.ToString().ForeColor(0xFF8888)
-            sprintf "%s (%i)" loc nm.Scope.Items.Count
+            sprintf "%s (%i)" loc nm.Items.Count
 
         Console.WriteLine(tagline.ClearRestOfLine())
         this.RenderFrontMatter(nm.Scope.FrontMatter, nm.Selected)
-        this.RenderList(nm.Scope.Items, nm.Selected)
+        this.RenderList(nm.Items, nm.Selected)
         view.Draw()
 
     member this.RenderSearchMode(sm: SearchMode) : unit =
@@ -79,11 +79,11 @@ type View(state: State) =
 
         let tagline =
             let loc = sm.Scope.ToString().ForeColor(0xFF8888)
-            sprintf "%s (%i results for: %O)" loc sm.Items.Length state.SearchBuffer
+            sprintf "%s (%i results for: %O)" loc sm.Results.Length state.SearchBuffer
 
         Console.WriteLine(tagline.ClearRestOfLine())
         this.RenderFrontMatter(sm.Scope.FrontMatter, sm.Selected)
-        this.RenderList(sm.Items, sm.Selected)
+        this.RenderList(sm.Results, sm.Selected)
         view.Draw()
 
     member this.Redraw() : unit =

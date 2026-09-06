@@ -8,7 +8,7 @@ type SearchMode =
         mutable Stack: (TodoElement * int) list
         mutable Scope: TodoElement
         mutable Selection: int option
-        mutable Items: TodoElement array
+        mutable Results: TodoElement array
         Query: SearchQuery
     }
 
@@ -42,12 +42,12 @@ type SearchMode =
                         | x -> Some x
                 | None -> fallback
             Query = parsed_query
-            Items = items
+            Results = items
         }
 
     member this.Selected: TodoElement option =
         match this.Selection with
-        | Some index -> Some(this.Items.[index])
+        | Some index -> Some(this.Results.[index])
         | None -> None
 
     member this.Open() : unit =
@@ -56,7 +56,7 @@ type SearchMode =
             let original_index = this.Scope.Items.IndexOf(item)
             this.Stack <- (this.Scope, original_index) :: this.Stack
             this.Scope <- item
-            this.Items <- this.Query.Apply(this.Scope.Items)
+            this.Results <- this.Query.Apply(this.Scope.Items)
             this.Selection <- None
         | None -> ()
 
@@ -66,12 +66,12 @@ type SearchMode =
         | (previous, previous_selection) :: stack ->
             this.Stack <- stack
             this.Scope <- previous
-            this.Items <- this.Query.Apply(this.Scope.Items)
+            this.Results <- this.Query.Apply(this.Scope.Items)
 
             this.Selection <-
-                let fallback = if this.Items.Length = 1 then Some 0 else None
+                let fallback = if this.Results.Length = 1 then Some 0 else None
 
-                match Array.IndexOf(this.Items, this.Scope.Items.[previous_selection]) with
+                match Array.IndexOf(this.Results, this.Scope.Items.[previous_selection]) with
                 | -1 -> fallback
                 | x -> Some x
 

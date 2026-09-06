@@ -6,7 +6,7 @@ type SearchModeCommands =
 
     [<Extension>]
     static member NavigateUp(sm: SearchMode) : unit =
-        let item_count = sm.Items.Length
+        let item_count = sm.Results.Length
 
         match sm.Selection with
         | Some index -> sm.Selection <- if index = 0 then None else Some(index - 1)
@@ -14,7 +14,7 @@ type SearchModeCommands =
 
     [<Extension>]
     static member NavigateDown(sm: SearchMode) : unit =
-        let item_count = sm.Items.Length
+        let item_count = sm.Results.Length
 
         match sm.Selection with
         | Some index -> sm.Selection <- if index + 1 >= item_count then None else Some(index + 1)
@@ -31,8 +31,8 @@ type SearchModeCommands =
         match sm.Selection with
         | Some index ->
             if index > 0 then
-                let item = sm.Items.[index]
-                let target = sm.Items.[index - 1]
+                let item = sm.Results.[index]
+                let target = sm.Results.[index - 1]
 
                 let inline make_tree_swap () : unit =
                     let target_origin = sm.Scope.Items.IndexOf(target)
@@ -40,9 +40,9 @@ type SearchModeCommands =
                     sm.Scope.Items.Insert(target_origin, item)
 
                 let inline make_array_swap () : unit =
-                    let x = sm.Items.[index]
-                    sm.Items.[index] <- sm.Items.[index - 1]
-                    sm.Items.[index - 1] <- x
+                    let x = sm.Results.[index]
+                    sm.Results.[index] <- sm.Results.[index - 1]
+                    sm.Results.[index - 1] <- x
                     sm.Selection <- Some(index - 1)
 
                 let can_swap = sm.Query.SortKey(item) = sm.Query.SortKey(target)
@@ -56,9 +56,9 @@ type SearchModeCommands =
     static member MoveDown(sm: SearchMode) : unit =
         match sm.Selection with
         | Some index ->
-            if index + 1 < sm.Items.Length then
-                let item = sm.Items.[index]
-                let target = sm.Items.[index + 1]
+            if index + 1 < sm.Results.Length then
+                let item = sm.Results.[index]
+                let target = sm.Results.[index + 1]
 
                 let inline make_tree_swap () : unit =
                     let target_origin = sm.Scope.Items.IndexOf(target)
@@ -66,9 +66,9 @@ type SearchModeCommands =
                     sm.Scope.Items.Insert(target_origin + 1, item)
 
                 let inline make_array_swap () : unit =
-                    let x = sm.Items.[index]
-                    sm.Items.[index] <- sm.Items.[index + 1]
-                    sm.Items.[index + 1] <- x
+                    let x = sm.Results.[index]
+                    sm.Results.[index] <- sm.Results.[index + 1]
+                    sm.Results.[index + 1] <- x
                     sm.Selection <- Some(index + 1)
 
                 let can_swap = sm.Query.SortKey(item) = sm.Query.SortKey(target)
@@ -82,11 +82,11 @@ type SearchModeCommands =
     static member MoveRight(sm: SearchMode) : unit =
         match sm.Selection with
         | Some index when index > 0 ->
-            let item = sm.Items.[index]
-            let target_parent = sm.Items.[index - 1]
+            let item = sm.Results.[index]
+            let target_parent = sm.Results.[index - 1]
             target_parent.Items.Add(item)
             sm.Scope.Items.Remove(item) |> ignore
-            sm.Items <- sm.Query.Apply(sm.Scope.Items)
+            sm.Results <- sm.Query.Apply(sm.Scope.Items)
             sm.Selection <- Some(index - 1)
         | _ -> ()
 
@@ -96,11 +96,11 @@ type SearchModeCommands =
         | Some child_index ->
             match sm.Stack with
             | (parent, parent_index) :: _ ->
-                let item = sm.Items.[child_index]
+                let item = sm.Results.[child_index]
                 parent.Items.Insert(parent_index + 1, item)
                 sm.Scope.Items.Remove(item) |> ignore
-                sm.Items <- sm.Query.Apply(sm.Scope.Items)
-                sm.Selection <- if child_index < sm.Items.Length then Some child_index else None
+                sm.Results <- sm.Query.Apply(sm.Scope.Items)
+                sm.Selection <- if child_index < sm.Results.Length then Some child_index else None
             | [] -> ()
         | None -> ()
 
@@ -110,7 +110,7 @@ type SearchModeCommands =
         | Some item ->
             sm.NavigateUp()
             ignore(sm.Scope.Items.Remove(item))
-            sm.Items <- sm.Query.Apply(sm.Scope.Items)
+            sm.Results <- sm.Query.Apply(sm.Scope.Items)
         | None -> sm.Scope.FrontMatter.Clear()
 
     [<Extension>]
@@ -119,7 +119,7 @@ type SearchModeCommands =
         | Some item -> Operations.edit(sm.Scope, item)
         | None -> Operations.edit_frontmatter(sm.Scope)
 
-        sm.Items <- sm.Query.Apply(sm.Scope.Items)
+        sm.Results <- sm.Query.Apply(sm.Scope.Items)
 
     [<Extension>]
     static member Describe(sm: SearchMode) : unit =
@@ -127,7 +127,7 @@ type SearchModeCommands =
         | Some item -> Operations.edit_contents(item)
         | None -> Operations.edit_frontmatter(sm.Scope)
 
-        sm.Items <- sm.Query.Apply(sm.Scope.Items)
+        sm.Results <- sm.Query.Apply(sm.Scope.Items)
 
     [<Extension>]
     static member Rename(sm: SearchMode) : unit =
@@ -135,4 +135,4 @@ type SearchModeCommands =
         | Some item -> Operations.edit_name(sm.Scope, item)
         | None -> ()
 
-        sm.Items <- sm.Query.Apply(sm.Scope.Items)
+        sm.Results <- sm.Query.Apply(sm.Scope.Items)

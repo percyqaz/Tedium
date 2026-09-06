@@ -8,16 +8,18 @@ type NormalMode =
         mutable Selection: int option
     }
 
+    member this.Items = this.Scope.Items
+
     member this.Selected: TodoElement option =
         match this.Selection with
-        | Some index -> Some(this.Scope.Items.[index])
+        | Some index -> Some(this.Items.[index])
         | None -> None
 
     member this.Open() : unit =
         match this.Selection with
         | Some index ->
             this.Stack <- (this.Scope, index) :: this.Stack
-            this.Scope <- this.Scope.Items.[index]
+            this.Scope <- this.Items.[index]
             this.Selection <- None
         | None -> ()
 
@@ -32,7 +34,7 @@ type NormalMode =
 
     member this.InsertNewItem(new_item: TodoElement) : unit =
         let index = this.Selection |> Option.defaultValue -1
-        this.Scope.Items.Insert(index + 1, new_item)
+        this.Items.Insert(index + 1, new_item)
         this.Selection <- Some(index + 1)
 
     static member Create(root: TodoListRoot) : NormalMode =

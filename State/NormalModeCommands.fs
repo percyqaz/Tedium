@@ -6,7 +6,7 @@ type NormalModeCommands =
 
     [<Extension>]
     static member NavigateUp(nm: NormalMode) : unit =
-        let item_count = nm.Scope.Items.Count
+        let item_count = nm.Items.Count
 
         match nm.Selection with
         | Some index -> nm.Selection <- if index = 0 then None else Some(index - 1)
@@ -14,7 +14,7 @@ type NormalModeCommands =
 
     [<Extension>]
     static member NavigateDown(nm: NormalMode) : unit =
-        let item_count = nm.Scope.Items.Count
+        let item_count = nm.Items.Count
 
         match nm.Selection with
         | Some index -> nm.Selection <- if index + 1 >= item_count then None else Some(index + 1)
@@ -31,9 +31,9 @@ type NormalModeCommands =
         match nm.Selection with
         | Some index ->
             if index > 0 then
-                let item = nm.Scope.Items.[index]
-                nm.Scope.Items.RemoveAt(index)
-                nm.Scope.Items.Insert(index - 1, item)
+                let item = nm.Items.[index]
+                nm.Items.RemoveAt(index)
+                nm.Items.Insert(index - 1, item)
                 nm.Selection <- Some(index - 1)
         | None -> ()
 
@@ -41,10 +41,10 @@ type NormalModeCommands =
     static member MoveDown(nm: NormalMode) : unit =
         match nm.Selection with
         | Some index ->
-            if index + 1 < nm.Scope.Items.Count then
-                let item = nm.Scope.Items.[index]
-                nm.Scope.Items.RemoveAt(index)
-                nm.Scope.Items.Insert(index + 1, item)
+            if index + 1 < nm.Items.Count then
+                let item = nm.Items.[index]
+                nm.Items.RemoveAt(index)
+                nm.Items.Insert(index + 1, item)
                 nm.Selection <- Some(index + 1)
         | None -> ()
 
@@ -52,10 +52,10 @@ type NormalModeCommands =
     static member MoveRight(nm: NormalMode) : unit =
         match nm.Selection with
         | Some index when index > 0 ->
-            let item = nm.Scope.Items.[index]
-            let target_parent = nm.Scope.Items.[index - 1]
+            let item = nm.Items.[index]
+            let target_parent = nm.Items.[index - 1]
             target_parent.Items.Add(item)
-            nm.Scope.Items.Remove(item) |> ignore
+            nm.Items.Remove(item) |> ignore
             nm.Selection <- Some(index - 1)
         | _ -> ()
 
@@ -65,10 +65,10 @@ type NormalModeCommands =
         | Some child_index ->
             match nm.Stack with
             | (parent, parent_index) :: _ ->
-                let item = nm.Scope.Items.[child_index]
-                nm.Scope.Items.Remove(item) |> ignore
+                let item = nm.Items.[child_index]
+                nm.Items.Remove(item) |> ignore
                 parent.Items.Insert(parent_index + 1, item)
-                nm.Selection <- if child_index < nm.Scope.Items.Count then Some child_index else None
+                nm.Selection <- if child_index < nm.Items.Count then Some child_index else None
             | [] -> ()
         | None -> ()
 
@@ -77,7 +77,7 @@ type NormalModeCommands =
         match nm.Selected with
         | Some item ->
             nm.NavigateUp()
-            ignore(nm.Scope.Items.Remove(item))
+            ignore(nm.Items.Remove(item))
         | None -> nm.Scope.FrontMatter.Clear()
 
     [<Extension>]
