@@ -13,30 +13,35 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateUp()
         | Mode.Search sm -> sm.NavigateUp()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member NavigateDown(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateDown()
         | Mode.Search sm -> sm.NavigateDown()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member NavigateRight(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateRight()
         | Mode.Search sm -> sm.NavigateRight()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member NavigateLeft(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateLeft()
         | Mode.Search sm -> sm.NavigateLeft()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member Open(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.Open()
         | Mode.Search sm -> sm.Open()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member Close(state: State) : unit =
@@ -47,6 +52,7 @@ type StateCommands =
         | Mode.Search sm ->
             if not(sm.Close()) then
                 state.Mode <- Mode.Normal(sm.ToNormalMode())
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member MoveUp(state: State) : unit =
@@ -55,6 +61,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveUp()
         | Mode.Search sm -> sm.MoveUp()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member MoveDown(state: State) : unit =
@@ -63,6 +70,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveDown()
         | Mode.Search sm -> sm.MoveDown()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member MoveRight(state: State) : unit =
@@ -71,6 +79,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveRight()
         | Mode.Search sm -> sm.MoveRight()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member MoveLeft(state: State) : unit =
@@ -79,6 +88,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveLeft()
         | Mode.Search sm -> sm.MoveLeft()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member MarkDone(state: State) : unit =
@@ -97,6 +107,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Delete()
         | Mode.Search sm -> sm.Delete()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member Edit(state: State) : unit =
@@ -105,6 +116,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Edit()
         | Mode.Search sm -> sm.Edit()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member Describe(state: State) : unit =
@@ -113,6 +125,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Describe()
         | Mode.Search sm -> sm.Describe()
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member Rename(state: State) : unit =
@@ -121,30 +134,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Rename()
         | Mode.Search sm -> sm.Rename()
-
-    [<Extension>]
-    static member ShowGitHubIssue(state: State) : unit =
-        let scope =
-            match state.Mode with
-            | Mode.Normal nm -> nm.Scope
-            | Mode.Search sm -> sm.Scope
-
-        match state.Mode.Selected with
-        | None ->
-            match scope.GetTagValue("repo") with
-            | Some(ValueSome _) -> state.StatusLine <- "NYI"
-            | _ -> state.StatusLine <- "No repo provided"
-        | Some item ->
-            match scope.GetTagValue("repo"), item.GetTagValue("gh") with
-            | Some(ValueSome(repo)), Some(ValueSome(issue)) ->
-                match GitHub.get_issue(repo, issue) with
-                | Ok issue ->
-                    Console.Clear()
-                    issue.Print()
-                    Console.ReadKey(true) |> ignore
-                | Error reason -> state.StatusLine <- reason
-            | _, Some _ -> state.StatusLine <- "No repo provided"
-            | _ -> state.StatusLine <- "No repo/issue provided"
+        | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
     static member Search(state: State) : unit =
@@ -165,6 +155,39 @@ type StateCommands =
                     state.TagColors <- state.TagColors.Add(tag.Label, Convert.ToInt32(split.[1], 16))
                 with err ->
                     state.StatusLine <- err.Message
+
+    [<Extension>]
+    static member ToggleCalendar(state: State) : unit =
+        state.Mode <-
+            match state.Mode with
+            | Mode.Normal nm -> Mode.Calendar(CalendarMode.FromNormalMode(nm))
+            | Mode.Search sm -> Mode.Calendar(CalendarMode.FromNormalMode(sm.ToNormalMode()))
+            | Mode.Calendar cm -> Mode.Normal(cm.ToNormalMode())
+
+    [<Extension>]
+    static member ShowGitHubIssue(state: State) : unit =
+        let scope =
+            match state.Mode with
+            | Mode.Normal nm -> nm.Scope
+            | Mode.Search sm -> sm.Scope
+            | Mode.Calendar cm -> cm.Scope
+
+        match state.Mode.Selected with
+        | None ->
+            match scope.GetTagValue("repo") with
+            | Some(ValueSome _) -> state.StatusLine <- "NYI"
+            | _ -> state.StatusLine <- "No repo provided"
+        | Some item ->
+            match scope.GetTagValue("repo"), item.GetTagValue("gh") with
+            | Some(ValueSome(repo)), Some(ValueSome(issue)) ->
+                match GitHub.get_issue(repo, issue) with
+                | Ok issue ->
+                    Console.Clear()
+                    issue.Print()
+                    Console.ReadKey(true) |> ignore
+                | Error reason -> state.StatusLine <- reason
+            | _, Some _ -> state.StatusLine <- "No repo provided"
+            | _ -> state.StatusLine <- "No repo/issue provided"
 
     [<Extension>]
     static member DispatchCommand(state: State, command: string) : unit =
@@ -193,6 +216,7 @@ type StateCommands =
         | "describe" -> state.Describe()
         | "rename" -> state.Rename()
         | "color_tag" -> state.ColorTag(args)
+        | "calendar" -> state.ToggleCalendar()
         | "show_github_issue" -> state.ShowGitHubIssue()
         | _ -> state.StatusLine <- sprintf "Unrecognised command '%s'" split.[0]
 
@@ -216,6 +240,7 @@ type StateCommands =
                 match state.Mode with
                 | Mode.Normal nm -> nm.InsertNewItem(new_item)
                 | Mode.Search sm -> sm.InsertNewItem(new_item)
+                | Mode.Calendar cm -> state.StatusLine <- "NYI"
             | None -> ()
 
         if text.StartsWith(':') then state.DispatchCommand(text.Substring(1))

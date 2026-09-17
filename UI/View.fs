@@ -92,6 +92,7 @@ type View(state: State) =
         match state.Mode with
         | Mode.Normal nm -> this.RenderNormalMode(nm)
         | Mode.Search sm -> this.RenderSearchMode(sm)
+        | Mode.Calendar cm -> printfn "Calendar mode NYI"
 
         Console.WriteLine("Tedium ".ForeColor(0xFF8888).Bold() + state.StatusLine.ForeColor(0x444444).ClearRestOfLine())
 
