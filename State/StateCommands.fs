@@ -41,7 +41,12 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Open()
         | Mode.Search sm -> sm.Open()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm ->
+            match cm.Selected with
+            | Some _ -> state.StatusLine <- "Opening items from calendar NYI"
+            | None ->
+                if cm.SelectedDay.Items.Length > 0 then
+                    cm.Selection <- Some(0)
 
     [<Extension>]
     static member Close(state: State) : unit =
@@ -52,7 +57,10 @@ type StateCommands =
         | Mode.Search sm ->
             if not(sm.Close()) then
                 state.Mode <- Mode.Normal(sm.ToNormalMode())
-        | Mode.Calendar cm -> state.Mode <- Mode.Normal(cm.ToNormalMode())
+        | Mode.Calendar cm ->
+            match cm.Selection with
+            | Some _ -> cm.Selection <- None
+            | None -> state.Mode <- Mode.Normal(cm.ToNormalMode())
 
     [<Extension>]
     static member MoveUp(state: State) : unit =
@@ -240,7 +248,7 @@ type StateCommands =
                 match state.Mode with
                 | Mode.Normal nm -> nm.InsertNewItem(new_item)
                 | Mode.Search sm -> sm.InsertNewItem(new_item)
-                | Mode.Calendar cm -> state.StatusLine <- "NYI"
+                | Mode.Calendar cm -> cm.InsertNewItem(new_item)
             | None -> ()
 
         if text.StartsWith(':') then state.DispatchCommand(text.Substring(1))

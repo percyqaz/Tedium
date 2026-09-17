@@ -97,3 +97,29 @@ type CalendarMode =
         match this.Selection with
         | Some index -> Some(this.SelectedDay.Items.[index])
         | None -> None
+
+    member this.InsertNewItem(new_item: TodoElement) : unit =
+        let calendar_root =
+            match this.Root.RootElement.Items |> Seq.tryFind(fun i -> i.GetTagValue("calendar") <> None) with
+            | Some calendar -> calendar
+            | None ->
+                let new_calendar =
+                    {
+                        FrontMatter = ResizeArray()
+                        Items = ResizeArray()
+                        Guts =
+                            Item { Text = "Calendar"; Done = false; Tags = Set.singleton(Tag.FromString("@calendar")) }
+                    }
+
+                this.Root.RootElement.Items.Add(new_calendar)
+                new_calendar
+
+        if new_item.GetTagValue("date").IsSome then
+            new_item.ToggleTag(Tag.FromString("@date"))
+
+        new_item.ToggleTag(
+            Tag.FromString("@date:" + this.SelectedDay.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))
+        )
+
+        calendar_root.Items.Add(new_item)
+        this.Refresh()

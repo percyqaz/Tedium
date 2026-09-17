@@ -26,7 +26,11 @@ type CalendarModeCommands =
             cm.Refresh()
 
     [<Extension>]
-    static member NavigateRight(nm: CalendarMode) : unit = nm.Day <- enum((int nm.Day + 1) % 7)
+    static member NavigateRight(nm: CalendarMode) : unit =
+        nm.Day <- enum((int nm.Day + 1) % 7)
+        nm.Selection <- None
 
     [<Extension>]
-    static member NavigateLeft(nm: CalendarMode) : unit = nm.Day <- enum((int nm.Day + 6) % 7)
+    static member NavigateLeft(nm: CalendarMode) : unit =
+        nm.Day <- enum((int nm.Day + 6) % 7)
+        nm.Selection <- None

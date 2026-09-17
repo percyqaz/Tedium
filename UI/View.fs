@@ -113,20 +113,28 @@ type View(state: State) =
 
         let inline day_header (is_current: bool) (day: CalendarDay) : string =
             let color = if day.Date = today then 0xffff88 else 0xffffff
+            let background = if day.Date.DayOfYear % 2 = 0 then 0x101010 else 0x202020
             let is_selected = is_current && cm.Day = day.Date.DayOfWeek
-            let date_string = day.Date.ToString("dd MMMM, yyyy", CultureInfo.InvariantCulture)
-            let fmt = if is_selected then sprintf "> %s <" date_string else date_string
 
-            fmt.PadRight(DAY_WIDTH).BackColor(0x101010).ForeColor(color)
+            let date_string =
+                day.Date.ToString("ddd dd MMM, yyyy", CultureInfo.InvariantCulture)
+
+            let fmt =
+                if is_selected then sprintf "> %s <" date_string else sprintf "  %s  " date_string
+
+            fmt.PadRight(DAY_WIDTH).BackColor(background).ForeColor(color)
 
         let inline week_header (week: CalendarWeek, is_current: bool) : string =
             week.Days |> Seq.map(day_header is_current) |> String.concat ""
 
         let inline week_view_row (week: CalendarWeek, i: int) : string =
             let empty = "".PadRight(DAY_WIDTH)
+            let selected_day = cm.SelectedDay
 
             let inline item (day: CalendarDay) =
-                if i < day.Items.Length then format_item(day.Items.[i]) else empty
+                let is_selected = day = selected_day && Some i = cm.Selection
+                let fmt = if i < day.Items.Length then format_item(day.Items.[i]) else empty
+                if is_selected then fmt.BackColor(0x666622) else fmt
 
             week.Days |> Seq.map item |> String.concat ""
 
