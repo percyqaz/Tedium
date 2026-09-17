@@ -23,6 +23,7 @@
     <Compile Include="TodoList\Operations.fs" />
     <Compile Include="State\Modes\NormalMode.fs" />
     <Compile Include="State\Modes\SearchMode.fs" />
+    <Compile Include="State\Modes\CalendarMode.fs" />
     <Compile Include="State\Modes\Mode.fs" />
     <Compile Include="State\State.fs" />
     <Compile Include="State\NormalModeCommands.fs" />
