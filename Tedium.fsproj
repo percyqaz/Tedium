@@ -28,6 +28,7 @@
     <Compile Include="State\State.fs" />
     <Compile Include="State\NormalModeCommands.fs" />
     <Compile Include="State\SearchModeCommands.fs" />
+    <Compile Include="State\CalendarModeCommands.fs" />
     <Compile Include="State\StateCommands.fs" />
     <Compile Include="UI\View.fs" />
     <Compile Include="Tedium.fs" />

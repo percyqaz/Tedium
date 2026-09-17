@@ -83,7 +83,17 @@ type CalendarMode =
                     (fun i -> CalendarWeek.Create(start_of_week.AddDays(CalendarWeek.Length * i), nm.Root))
         }
 
+    member this.Refresh() : unit =
+        this.View <-
+            Array.init
+                CalendarWeek.Count
+                (fun i -> CalendarWeek.Create(this.Week.AddDays(CalendarWeek.Length * i), this.Root))
+
+    member this.SelectedWeek: CalendarWeek = this.View.[0]
+
+    member this.SelectedDay: CalendarDay = this.SelectedWeek.Days.[int this.Day]
+
     member this.Selected: TodoElement option =
         match this.Selection with
-        | Some index -> Some(this.View.[0].Days.[int this.Day].Items.[index])
+        | Some index -> Some(this.SelectedDay.Items.[index])
         | None -> None

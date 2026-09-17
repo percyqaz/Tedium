@@ -27,6 +27,7 @@ module Tedium =
         bind (Keymap.SpecialKey("A-k")) "move_up"
         bind (Keymap.SpecialKey("A-l")) "move_right"
         bind "G" "show_github_issue"
+        bind "C" "calendar"
 
         alias (Keymap.SpecialKey("Down")) "j"
         alias (Keymap.SpecialKey("Up")) "k"

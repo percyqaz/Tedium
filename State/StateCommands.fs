@@ -13,28 +13,28 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateUp()
         | Mode.Search sm -> sm.NavigateUp()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.NavigateUp()
 
     [<Extension>]
     static member NavigateDown(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateDown()
         | Mode.Search sm -> sm.NavigateDown()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.NavigateDown()
 
     [<Extension>]
     static member NavigateRight(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateRight()
         | Mode.Search sm -> sm.NavigateRight()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.NavigateRight()
 
     [<Extension>]
     static member NavigateLeft(state: State) : unit =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateLeft()
         | Mode.Search sm -> sm.NavigateLeft()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.NavigateLeft()
 
     [<Extension>]
     static member Open(state: State) : unit =
