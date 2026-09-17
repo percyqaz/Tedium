@@ -1,6 +1,7 @@
 namespace Tedium
 
 open System
+open System.Globalization
 
 type View(state: State) =
 
@@ -86,13 +87,63 @@ type View(state: State) =
         this.RenderList(sm.Results, sm.Selected)
         view.Draw()
 
+    member this.RenderCalendarMode(cm: CalendarMode) : unit =
+
+        let DAY_WIDTH = Console.BufferWidth / CalendarWeek.Length
+        let DAY_HEIGHT = (Console.BufferHeight - 2) / CalendarWeek.Count
+
+        let today = DateOnly.FromDateTime(DateTime.Now)
+
+        let inline format_item (element: TodoElement) : string =
+            let max_length = DAY_WIDTH - 2
+
+            match element.Guts with
+            | Item item ->
+                let done_marker =
+                    if item.Done then "x".ForeColor(0x66FF66) else "*".ForeColor(0xFF8888)
+
+                let text =
+                    if item.Text.Length > max_length then
+                        item.Text.Substring(0, max_length)
+                    else
+                        item.Text.PadRight(max_length)
+
+                sprintf "%s %s" done_marker text
+            | File _ -> "***"
+
+        let inline day_header (is_current: bool) (day: CalendarDay) : string =
+            let color = if day.Date = today then 0xffff88 else 0xffffff
+            let is_selected = is_current && cm.Day = day.Date.DayOfWeek
+            let date_string = day.Date.ToString("dd MMMM, yyyy", CultureInfo.InvariantCulture)
+            let fmt = if is_selected then sprintf "> %s <" date_string else date_string
+
+            fmt.PadRight(DAY_WIDTH).BackColor(0x101010).ForeColor(color)
+
+        let inline week_header (week: CalendarWeek, is_current: bool) : string =
+            week.Days |> Seq.map(day_header is_current) |> String.concat ""
+
+        let inline week_view_row (week: CalendarWeek, i: int) : string =
+            let empty = "".PadRight(DAY_WIDTH)
+
+            let inline item (day: CalendarDay) =
+                if i < day.Items.Length then format_item(day.Items.[i]) else empty
+
+            week.Days |> Seq.map item |> String.concat ""
+
+        for w = 0 to cm.View.Length - 1 do
+            let week = cm.View.[w]
+            Console.WriteLine(week_header(week, w = 0).ClearRestOfLine())
+
+            for i = 0 to DAY_HEIGHT - 2 do
+                Console.WriteLine(week_view_row(week, i).ClearRestOfLine())
+
     member this.Redraw() : unit =
         Console.Write(AnsiCodes.CursorToOrigin)
 
         match state.Mode with
         | Mode.Normal nm -> this.RenderNormalMode(nm)
         | Mode.Search sm -> this.RenderSearchMode(sm)
-        | Mode.Calendar cm -> printfn "Calendar mode NYI"
+        | Mode.Calendar cm -> this.RenderCalendarMode(cm)
 
         Console.WriteLine("Tedium ".ForeColor(0xFF8888).Bold() + state.StatusLine.ForeColor(0x444444).ClearRestOfLine())
 

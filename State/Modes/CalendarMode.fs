@@ -36,6 +36,7 @@ type CalendarWeek =
     }
 
     static member val Length = 7
+    static member val Count = 3
 
     static member Create(date: DateOnly, root: TodoListRoot) : CalendarWeek =
         if date.DayOfWeek <> DayOfWeek.Sunday then
@@ -77,11 +78,9 @@ type CalendarMode =
             Day = today.DayOfWeek
             Selection = None
             View =
-                [|
-                    CalendarWeek.Create(start_of_week, nm.Root)
-                    CalendarWeek.Create(start_of_week.AddDays(CalendarWeek.Length), nm.Root)
-                    CalendarWeek.Create(start_of_week.AddDays(CalendarWeek.Length * 2), nm.Root)
-                |]
+                Array.init
+                    CalendarWeek.Count
+                    (fun i -> CalendarWeek.Create(start_of_week.AddDays(CalendarWeek.Length * i), nm.Root))
         }
 
     member this.Selected: TodoElement option =

@@ -52,7 +52,7 @@ type StateCommands =
         | Mode.Search sm ->
             if not(sm.Close()) then
                 state.Mode <- Mode.Normal(sm.ToNormalMode())
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> state.Mode <- Mode.Normal(cm.ToNormalMode())
 
     [<Extension>]
     static member MoveUp(state: State) : unit =
