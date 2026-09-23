@@ -30,6 +30,7 @@ type Tag =
 
         match name with
         | "TODAY" -> date_of_value(DateTime.Today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))
+        | "TOMORROW" -> date_of_value(DateTime.Today.AddDays(1).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))
         | "SUNDAY" -> day_of_week(DayOfWeek.Sunday)
         | "MONDAY" -> day_of_week(DayOfWeek.Monday)
         | "TUESDAY" -> day_of_week(DayOfWeek.Tuesday)
