@@ -61,8 +61,8 @@ type SearchModeCommands =
                 let target = sm.Results.[index + 1]
 
                 let inline make_tree_swap () : unit =
-                    let target_origin = sm.Scope.Items.IndexOf(target)
                     sm.Scope.Items.Remove(item) |> ignore
+                    let target_origin = sm.Scope.Items.IndexOf(target)
                     sm.Scope.Items.Insert(target_origin + 1, item)
 
                 let inline make_array_swap () : unit =
