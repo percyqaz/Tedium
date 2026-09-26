@@ -5,7 +5,9 @@ Designed for my personal use and I have now consistently used it for a couple of
 
 - Todo lists are text files, items to do marked with a `*`, and `x` if complete
 - Nested items supported, items can have arbitrary text/descriptions/front matter
-- Items can have tags denoted by `@`
+- Items can have tags denoted by `@`, with values via `@key:value` format
+- Search view
+- Calendar view for items tagged with `@date:YYYY-MM-DD`
 - Vim-like keybinds
 
 Likely future features
