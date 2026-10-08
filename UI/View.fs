@@ -97,7 +97,7 @@ type View(state: State) =
         let tagline = sprintf "(%i global results for: %s)" sm.Results.Length query
 
         Console.WriteLine(tagline.ClearRestOfLine())
-        this.RenderList(sm.Results, sm.Selected)
+        this.RenderList(sm.Results |> Seq.map _.Item, sm.Selected)
         view.Draw()
 
 

@@ -70,3 +70,18 @@ type SearchQuery =
             filtered |> Seq.sortByDescending this.SortKey |> Array.ofSeq
         else
             filtered |> Array.ofSeq
+
+    member this.Apply(items: (TodoElement * 'T) seq) : (TodoElement * 'T) array =
+
+        let filtered =
+            items
+            |> Seq.filter(fun (item, _) ->
+                match item.Guts with
+                | Item i -> this.Filters |> List.forall _.Matches(i)
+                | File _ -> false
+            )
+
+        if this.Sort <> [] then
+            filtered |> Seq.sortByDescending(fst >> this.SortKey) |> Array.ofSeq
+        else
+            filtered |> Array.ofSeq

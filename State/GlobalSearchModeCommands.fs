@@ -21,29 +21,21 @@ type GlobalSearchModeCommands =
         | None -> sm.Selection <- if item_count > 0 then Some(0) else None
 
     [<Extension>]
-    static member NavigateRight(sm: GlobalSearchMode) : unit = sm.Open()
-
-    [<Extension>]
-    static member NavigateLeft(sm: GlobalSearchMode) : unit = ignore(sm.Close())
-
-    [<Extension>]
     static member Delete(sm: GlobalSearchMode) : unit =
-        match sm.Selected with
+        match sm.SelectedSearchResult with
         | Some item ->
             sm.NavigateUp()
-            sm.FindParent(item) |> Option.iter(fun (parent, _) -> parent.Items.Remove(item) |> ignore)
+            ignore(item.Scope.Items.Remove(item.Item))
             sm.Refresh()
-        | None -> sm.Scope.FrontMatter.Clear()
+        | None -> ()
 
     [<Extension>]
     static member Edit(sm: GlobalSearchMode) : unit =
-        match sm.Selected with
+        match sm.SelectedSearchResult with
         | Some item ->
-            let parent = sm.FindParent(item) |> Option.map fst |> Option.defaultValue sm.Scope
-
-            Operations.edit(parent, item)
+            Operations.edit(item.Scope, item.Item)
             sm.Refresh()
-        | None -> Operations.edit_frontmatter(sm.Scope)
+        | None -> ()
 
     [<Extension>]
     static member Describe(sm: GlobalSearchMode) : unit =
@@ -51,14 +43,12 @@ type GlobalSearchModeCommands =
         | Some item ->
             Operations.edit_contents(item)
             sm.Refresh()
-        | None -> Operations.edit_frontmatter(sm.Scope)
+        | None -> ()
 
     [<Extension>]
     static member Rename(sm: GlobalSearchMode) : unit =
-        match sm.Selected with
+        match sm.SelectedSearchResult with
         | Some item ->
-            let parent = sm.FindParent(item) |> Option.map fst |> Option.defaultValue sm.Scope
-
-            Operations.edit_name(parent, item)
+            Operations.edit_name(item.Scope, item.Item)
             sm.Refresh()
         | None -> ()

@@ -29,7 +29,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateRight()
         | Mode.Search sm -> sm.NavigateRight()
-        | Mode.GlobalSearch sm -> sm.NavigateRight()
+        | Mode.GlobalSearch sm -> state.Open()
         | Mode.Calendar cm -> cm.NavigateRight()
 
     [<Extension>]
@@ -37,7 +37,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateLeft()
         | Mode.Search sm -> sm.NavigateLeft()
-        | Mode.GlobalSearch sm -> sm.NavigateLeft()
+        | Mode.GlobalSearch sm -> ()
         | Mode.Calendar cm -> cm.NavigateLeft()
 
     [<Extension>]
@@ -45,7 +45,12 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Open()
         | Mode.Search sm -> sm.Open()
-        | Mode.GlobalSearch sm -> sm.Open()
+        | Mode.GlobalSearch sm ->
+            match sm.Open() with
+            | Some nm ->
+                state.SearchBuffer.Clear()
+                state.Mode <- Mode.Normal(nm)
+            | None -> ()
         | Mode.Calendar cm ->
             match cm.Selected with
             | Some _ -> state.StatusLine <- "Opening items from calendar NYI"
@@ -61,10 +66,11 @@ type StateCommands =
                 state.Running <- false
         | Mode.Search sm ->
             if not(sm.Close()) then
+                state.SearchBuffer.Clear()
                 state.Mode <- Mode.Normal(sm.ToNormalMode())
         | Mode.GlobalSearch sm ->
-            if not(sm.Close()) then
-                state.Mode <- Mode.Normal(sm.ToNormalMode())
+            state.SearchBuffer.Clear()
+            state.Mode <- Mode.Normal(sm.ToNormalMode())
         | Mode.Calendar cm ->
             match cm.Selection with
             | Some _ -> cm.Selection <- None
@@ -193,17 +199,17 @@ type StateCommands =
     static member ShowGitHubIssue(state: State) : unit =
         let scope =
             match state.Mode with
-            | Mode.Normal nm -> nm.Scope
-            | Mode.Search sm -> sm.Scope
-            | Mode.GlobalSearch sm -> sm.Scope
-            | Mode.Calendar cm -> cm.Scope
+            | Mode.GlobalSearch sm -> sm.SelectedSearchResult |> Option.map _.Scope
+            | Mode.Normal nm -> Some nm.Scope
+            | Mode.Search sm -> Some sm.Scope
+            | Mode.Calendar cm -> Some cm.Scope
 
-        match state.Mode.Selected with
-        | None ->
+        match scope, state.Mode.Selected with
+        | Some scope, None ->
             match scope.GetTagValue("repo") with
             | Some(ValueSome _) -> state.StatusLine <- "NYI"
             | _ -> state.StatusLine <- "No repo provided"
-        | Some item ->
+        | Some scope, Some item ->
             match scope.GetTagValue("repo"), item.GetTagValue("gh") with
             | Some(ValueSome(repo)), Some(ValueSome(issue)) ->
                 match GitHub.get_issue(repo, issue) with
@@ -214,6 +220,7 @@ type StateCommands =
                 | Error reason -> state.StatusLine <- reason
             | _, Some _ -> state.StatusLine <- "No repo provided"
             | _ -> state.StatusLine <- "No repo/issue provided"
+        | _ -> ()
 
     [<Extension>]
     static member DispatchCommand(state: State, command: string) : unit =
