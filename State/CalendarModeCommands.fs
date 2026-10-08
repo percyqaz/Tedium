@@ -34,3 +34,82 @@ type CalendarModeCommands =
     static member NavigateLeft(nm: CalendarMode) : unit =
         nm.Day <- enum((int nm.Day + 6) % 7)
         nm.Selection <- None
+
+    [<Extension>]
+    static member MoveUp(cm: CalendarMode) : unit =
+        match cm.SelectedCalendarItem with
+        | Some selected when cm.Selection.Value > 0 ->
+            let target = cm.SelectedDay.Items.[cm.Selection.Value - 1]
+
+            if obj.ReferenceEquals(selected.Scope, target.Scope) then
+                let selected_index = selected.Scope.Items.IndexOf(selected.Item)
+                let target_index = selected.Scope.Items.IndexOf(target.Item)
+
+                if selected_index >= 0 && target_index >= 0 then
+                    selected.Scope.Items.RemoveAt(selected_index)
+                    selected.Scope.Items.Insert(target_index, selected.Item)
+                    cm.Refresh()
+
+                    cm.Selection <-
+                        cm.SelectedDay.Items
+                        |> Array.tryFindIndex(fun entry -> obj.ReferenceEquals(entry.Item, selected.Item))
+        | _ -> ()
+
+    [<Extension>]
+    static member MoveDown(cm: CalendarMode) : unit =
+        match cm.SelectedCalendarItem with
+        | Some selected when cm.Selection.Value + 1 < cm.SelectedDay.Items.Length ->
+            let target = cm.SelectedDay.Items.[cm.Selection.Value + 1]
+
+            if obj.ReferenceEquals(selected.Scope, target.Scope) then
+                let selected_index = selected.Scope.Items.IndexOf(selected.Item)
+                let target_index = selected.Scope.Items.IndexOf(target.Item)
+
+                if selected_index >= 0 && target_index >= 0 then
+                    selected.Scope.Items.RemoveAt(selected_index)
+                    let target_index_after_remove = selected.Scope.Items.IndexOf(target.Item)
+                    selected.Scope.Items.Insert(target_index_after_remove + 1, selected.Item)
+                    cm.Refresh()
+
+                    cm.Selection <-
+                        cm.SelectedDay.Items
+                        |> Array.tryFindIndex(fun entry -> obj.ReferenceEquals(entry.Item, selected.Item))
+        | _ -> ()
+
+    [<Extension>]
+    static member Delete(cm: CalendarMode) : unit =
+        match cm.SelectedCalendarItem with
+        | Some selected ->
+            cm.NavigateUp()
+            selected.Scope.Items.Remove(selected.Item) |> ignore
+            cm.Refresh()
+
+            if cm.SelectedDay.Items.Length = 0 then
+                cm.Selection <- None
+            elif cm.Selection |> Option.exists(fun index -> index >= cm.SelectedDay.Items.Length) then
+                cm.Selection <- Some(cm.SelectedDay.Items.Length - 1)
+        | None -> ()
+
+    [<Extension>]
+    static member Edit(cm: CalendarMode) : unit =
+        match cm.SelectedCalendarItem with
+        | Some selected ->
+            Operations.edit(selected.Scope, selected.Item)
+            cm.Refresh()
+        | None -> ()
+
+    [<Extension>]
+    static member Describe(cm: CalendarMode) : unit =
+        match cm.Selected with
+        | Some item ->
+            Operations.edit_contents(item)
+            cm.Refresh()
+        | None -> ()
+
+    [<Extension>]
+    static member Rename(cm: CalendarMode) : unit =
+        match cm.SelectedCalendarItem with
+        | Some selected ->
+            Operations.edit_name(selected.Scope, selected.Item)
+            cm.Refresh()
+        | None -> ()

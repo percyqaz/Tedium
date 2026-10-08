@@ -86,7 +86,7 @@ type StateCommands =
         | Mode.Normal nm -> nm.MoveUp()
         | Mode.Search sm -> sm.MoveUp()
         | Mode.GlobalSearch _ -> ()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.MoveUp()
 
     [<Extension>]
     static member MoveDown(state: State) : unit =
@@ -96,7 +96,7 @@ type StateCommands =
         | Mode.Normal nm -> nm.MoveDown()
         | Mode.Search sm -> sm.MoveDown()
         | Mode.GlobalSearch _ -> ()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.MoveDown()
 
     [<Extension>]
     static member MoveRight(state: State) : unit =
@@ -136,7 +136,7 @@ type StateCommands =
         | Mode.Normal nm -> nm.Delete()
         | Mode.Search sm -> sm.Delete()
         | Mode.GlobalSearch sm -> sm.Delete()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.Delete()
 
     [<Extension>]
     static member Edit(state: State) : unit =
@@ -146,7 +146,7 @@ type StateCommands =
         | Mode.Normal nm -> nm.Edit()
         | Mode.Search sm -> sm.Edit()
         | Mode.GlobalSearch sm -> sm.Edit()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.Edit()
 
     [<Extension>]
     static member Describe(state: State) : unit =
@@ -156,7 +156,7 @@ type StateCommands =
         | Mode.Normal nm -> nm.Describe()
         | Mode.Search sm -> sm.Describe()
         | Mode.GlobalSearch sm -> sm.Describe()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.Describe()
 
     [<Extension>]
     static member Rename(state: State) : unit =
@@ -166,7 +166,7 @@ type StateCommands =
         | Mode.Normal nm -> nm.Rename()
         | Mode.Search sm -> sm.Rename()
         | Mode.GlobalSearch sm -> sm.Rename()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.Rename()
 
     [<Extension>]
     static member Search(state: State) : unit =
