@@ -106,7 +106,7 @@ type StateCommands =
         | Mode.Normal nm -> nm.MoveRight()
         | Mode.Search sm -> sm.MoveRight()
         | Mode.GlobalSearch _ -> ()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.MoveRight()
 
     [<Extension>]
     static member MoveLeft(state: State) : unit =
@@ -116,7 +116,7 @@ type StateCommands =
         | Mode.Normal nm -> nm.MoveLeft()
         | Mode.Search sm -> sm.MoveLeft()
         | Mode.GlobalSearch _ -> ()
-        | Mode.Calendar cm -> state.StatusLine <- "NYI"
+        | Mode.Calendar cm -> cm.MoveLeft()
 
     [<Extension>]
     static member MarkDone(state: State) : unit =

@@ -41,7 +41,7 @@ type CalendarModeCommands =
         | Some selected when cm.Selection.Value > 0 ->
             let target = cm.SelectedDay.Items.[cm.Selection.Value - 1]
 
-            if obj.ReferenceEquals(selected.Scope, target.Scope) then
+            if selected.Scope = target.Scope then
                 let selected_index = selected.Scope.Items.IndexOf(selected.Item)
                 let target_index = selected.Scope.Items.IndexOf(target.Item)
 
@@ -61,7 +61,7 @@ type CalendarModeCommands =
         | Some selected when cm.Selection.Value + 1 < cm.SelectedDay.Items.Length ->
             let target = cm.SelectedDay.Items.[cm.Selection.Value + 1]
 
-            if obj.ReferenceEquals(selected.Scope, target.Scope) then
+            if selected.Scope = target.Scope then
                 let selected_index = selected.Scope.Items.IndexOf(selected.Item)
                 let target_index = selected.Scope.Items.IndexOf(target.Item)
 
@@ -75,6 +75,12 @@ type CalendarModeCommands =
                         cm.SelectedDay.Items
                         |> Array.tryFindIndex(fun entry -> obj.ReferenceEquals(entry.Item, selected.Item))
         | _ -> ()
+
+    [<Extension>]
+    static member MoveLeft(cm: CalendarMode) : unit = cm.MoveSelectionByDays(-1)
+
+    [<Extension>]
+    static member MoveRight(cm: CalendarMode) : unit = cm.MoveSelectionByDays(1)
 
     [<Extension>]
     static member Delete(cm: CalendarMode) : unit =

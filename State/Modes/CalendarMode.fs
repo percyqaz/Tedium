@@ -150,3 +150,29 @@ type CalendarMode =
 
         calendar_root.Items.Add(new_item)
         this.Refresh()
+
+    member this.MoveSelectionByDays(days: int) : unit =
+        match this.SelectedCalendarItem with
+        | Some selected ->
+            let target_date = this.SelectedDay.Date.AddDays(days)
+            let target_day = int this.Day + days
+
+            if target_day < 0 then
+                this.Week <- this.Week.AddDays(-CalendarWeek.Length)
+                this.Day <- DayOfWeek.Saturday
+            elif target_day >= CalendarWeek.Length then
+                this.Week <- this.Week.AddDays(CalendarWeek.Length)
+                this.Day <- DayOfWeek.Sunday
+            else
+                this.Day <- enum<DayOfWeek> target_day
+
+            selected.Item.ToggleTag(Tag.FromString("@date"))
+
+            selected.Item.ToggleTag(
+                Tag.FromString("@date:" + target_date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))
+            )
+
+            this.Refresh()
+
+            this.Selection <- this.SelectedDay.Items |> Array.tryFindIndex(fun entry -> entry.Item = selected.Item)
+        | None -> ()
