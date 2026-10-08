@@ -78,14 +78,28 @@ type View(state: State) =
     member this.RenderSearchMode(sm: SearchMode) : unit =
         view.Height <- Console.BufferHeight - 3
 
+        let query = state.SearchBuffer.ToString()
+
         let tagline =
             let loc = sm.Scope.ToString().ForeColor(0xFF8888)
-            sprintf "%s (%i results for: %O)" loc sm.Results.Length state.SearchBuffer
+            sprintf "%s (%i results for: %s)" loc sm.Results.Length query
 
         Console.WriteLine(tagline.ClearRestOfLine())
         this.RenderFrontMatter(sm.Scope.FrontMatter, sm.Selected)
         this.RenderList(sm.Results, sm.Selected)
         view.Draw()
+
+    member this.RenderGlobalSearchMode(sm: GlobalSearchMode) : unit =
+        view.Height <- Console.BufferHeight - 3
+
+        let query = state.SearchBuffer.ToString()
+
+        let tagline = sprintf "(%i global results for: %s)" sm.Results.Length query
+
+        Console.WriteLine(tagline.ClearRestOfLine())
+        this.RenderList(sm.Results, sm.Selected)
+        view.Draw()
+
 
     member this.RenderCalendarMode(cm: CalendarMode) : unit =
 
@@ -151,6 +165,7 @@ type View(state: State) =
         match state.Mode with
         | Mode.Normal nm -> this.RenderNormalMode(nm)
         | Mode.Search sm -> this.RenderSearchMode(sm)
+        | Mode.GlobalSearch sm -> this.RenderGlobalSearchMode(sm)
         | Mode.Calendar cm -> this.RenderCalendarMode(cm)
 
         Console.WriteLine("Tedium ".ForeColor(0xFF8888).Bold() + state.StatusLine.ForeColor(0x444444).ClearRestOfLine())

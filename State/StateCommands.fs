@@ -13,6 +13,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateUp()
         | Mode.Search sm -> sm.NavigateUp()
+        | Mode.GlobalSearch sm -> sm.NavigateUp()
         | Mode.Calendar cm -> cm.NavigateUp()
 
     [<Extension>]
@@ -20,6 +21,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateDown()
         | Mode.Search sm -> sm.NavigateDown()
+        | Mode.GlobalSearch sm -> sm.NavigateDown()
         | Mode.Calendar cm -> cm.NavigateDown()
 
     [<Extension>]
@@ -27,6 +29,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateRight()
         | Mode.Search sm -> sm.NavigateRight()
+        | Mode.GlobalSearch sm -> sm.NavigateRight()
         | Mode.Calendar cm -> cm.NavigateRight()
 
     [<Extension>]
@@ -34,6 +37,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateLeft()
         | Mode.Search sm -> sm.NavigateLeft()
+        | Mode.GlobalSearch sm -> sm.NavigateLeft()
         | Mode.Calendar cm -> cm.NavigateLeft()
 
     [<Extension>]
@@ -41,6 +45,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Open()
         | Mode.Search sm -> sm.Open()
+        | Mode.GlobalSearch sm -> sm.Open()
         | Mode.Calendar cm ->
             match cm.Selected with
             | Some _ -> state.StatusLine <- "Opening items from calendar NYI"
@@ -57,6 +62,9 @@ type StateCommands =
         | Mode.Search sm ->
             if not(sm.Close()) then
                 state.Mode <- Mode.Normal(sm.ToNormalMode())
+        | Mode.GlobalSearch sm ->
+            if not(sm.Close()) then
+                state.Mode <- Mode.Normal(sm.ToNormalMode())
         | Mode.Calendar cm ->
             match cm.Selection with
             | Some _ -> cm.Selection <- None
@@ -69,6 +77,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveUp()
         | Mode.Search sm -> sm.MoveUp()
+        | Mode.GlobalSearch sm -> ()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -78,6 +87,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveDown()
         | Mode.Search sm -> sm.MoveDown()
+        | Mode.GlobalSearch sm -> ()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -87,6 +97,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveRight()
         | Mode.Search sm -> sm.MoveRight()
+        | Mode.GlobalSearch sm -> ()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -96,6 +107,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveLeft()
         | Mode.Search sm -> sm.MoveLeft()
+        | Mode.GlobalSearch sm -> ()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -115,6 +127,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Delete()
         | Mode.Search sm -> sm.Delete()
+        | Mode.GlobalSearch sm -> sm.Delete()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -124,6 +137,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Edit()
         | Mode.Search sm -> sm.Edit()
+        | Mode.GlobalSearch sm -> sm.Edit()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -133,6 +147,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Describe()
         | Mode.Search sm -> sm.Describe()
+        | Mode.GlobalSearch sm -> sm.Describe()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -142,6 +157,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.Rename()
         | Mode.Search sm -> sm.Rename()
+        | Mode.GlobalSearch sm -> sm.Rename()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -170,6 +186,7 @@ type StateCommands =
             match state.Mode with
             | Mode.Normal nm -> Mode.Calendar(CalendarMode.FromNormalMode(nm))
             | Mode.Search sm -> Mode.Calendar(CalendarMode.FromNormalMode(sm.ToNormalMode()))
+            | Mode.GlobalSearch sm -> Mode.Calendar(CalendarMode.FromNormalMode(sm.ToNormalMode()))
             | Mode.Calendar cm -> Mode.Normal(cm.ToNormalMode())
 
     [<Extension>]
@@ -178,6 +195,7 @@ type StateCommands =
             match state.Mode with
             | Mode.Normal nm -> nm.Scope
             | Mode.Search sm -> sm.Scope
+            | Mode.GlobalSearch sm -> sm.Scope
             | Mode.Calendar cm -> cm.Scope
 
         match state.Mode.Selected with
@@ -248,6 +266,7 @@ type StateCommands =
                 match state.Mode with
                 | Mode.Normal nm -> nm.InsertNewItem(new_item)
                 | Mode.Search sm -> sm.InsertNewItem(new_item)
+                | Mode.GlobalSearch _ -> state.StatusLine <- "Adding items not supported in this view"
                 | Mode.Calendar cm -> cm.InsertNewItem(new_item)
             | None -> ()
 

@@ -11,7 +11,7 @@ Tedium is a personal, terminal-based hierarchical todo list, packaged as the `te
 - Recognized date shorthands such as `@TODAY`, `@TOMORROW`, or `@MONDAY` become `@date:YYYY-MM-DD`; weekday shorthands resolve to the next occurrence (strictly after today).
 - Text that is not parsed as an item at the current indentation is retained as front matter/description lines. Items can have nested children and their own front matter.
 - The parser and writer are `TodoList/TodoItemParser.fs` and `TodoList/TodoItemWriter.fs`. `TodoListRoot.Load` opens or creates the file; `Save` rewrites it from the in-memory tree. Keep round-trip behavior in mind when changing either.
-- Search filters are whitespace-separated keywords and tags; `-` negates a filter and `^tagname` adds a descending sort key. Keyword matching is case-insensitive. Search is scoped to the current list level.
+- Search filters are whitespace-separated keywords and tags; `-` negates a filter and `^tagname` adds a descending sort key. Keyword matching is case-insensitive. Search is scoped to the current list level unless its buffer begins with `*`, which runs the same query globally through every nested item; removing the prefix or leaving global search restores the prior scope.
 - Calendar view finds tagged items recursively throughout the tree using exact `@date:YYYY-MM-DD` values. It displays three Sunday-starting weeks.
 
 ## UI and commands

@@ -1,18 +1,25 @@
-﻿namespace Tedium
+namespace Tedium
 
 open System
 
 type TextBuffer() =
 
     let mutable buffer = ""
-    override this.ToString() : string = buffer
+
+    member this.Value
+        with get (): string = buffer
+        and set (value: string) = buffer <- value
+
+    member this.Clear() : unit = this.Value <- ""
+
+    override this.ToString() : string = this.Value
 
     member this.TryAddKey(input: ConsoleKeyInfo) : bool =
 
         let inline is_displayable () : bool =
             input.KeyChar <> '\u0000'
             && input.Modifiers &&& ConsoleModifiers.Alt <> ConsoleModifiers.Alt
-            && Char.IsAscii(input.KeyChar)
+            && not(Char.IsControl(input.KeyChar))
             && not(Char.IsWhiteSpace(input.KeyChar))
 
         let inline delete_last_key () : unit =
