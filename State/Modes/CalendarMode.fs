@@ -113,6 +113,18 @@ type CalendarMode =
         | Some index -> Some(this.SelectedDay.Items.[index])
         | None -> None
 
+    member this.Open() : NormalMode option =
+        match this.SelectedCalendarItem with
+        | Some item ->
+            Some
+                {
+                    Root = this.Root
+                    Stack = item.Stack
+                    Scope = item.Scope
+                    Selection = Some(item.Scope.Items.IndexOf(item.Item))
+                }
+        | None -> None
+
     member this.InsertNewItem(new_item: TodoElement) : unit =
         let calendar_root =
             match this.Root.RootElement.Items |> Seq.tryFind(fun i -> i.GetTagValue("calendar") <> None) with

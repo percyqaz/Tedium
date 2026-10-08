@@ -52,8 +52,10 @@ type StateCommands =
                 state.Mode <- Mode.Normal(nm)
             | None -> ()
         | Mode.Calendar cm ->
-            match cm.Selected with
-            | Some _ -> state.StatusLine <- "Opening items from calendar NYI"
+            match cm.Open() with
+            | Some nm ->
+                state.Mode <- Mode.Normal(nm)
+                state.SearchBuffer.Clear()
             | None ->
                 if cm.SelectedDay.Items.Length > 0 then
                     cm.Selection <- Some(0)
