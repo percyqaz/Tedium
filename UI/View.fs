@@ -147,7 +147,7 @@ type View(state: State) =
 
             let inline item (day: CalendarDay) =
                 let is_selected = day = selected_day && Some i = cm.Selection
-                let fmt = if i < day.Items.Length then format_item(day.Items.[i]) else empty
+                let fmt = if i < day.Items.Length then format_item(day.Items.[i].Item) else empty
                 if is_selected then fmt.BackColor(0x666622) else fmt
 
             week.Days |> Seq.map item |> String.concat ""

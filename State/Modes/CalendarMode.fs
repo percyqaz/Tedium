@@ -3,11 +3,13 @@ namespace Tedium
 open System
 open System.Globalization
 
+type CalendarDayItem = { Item: TodoElement; Stack: (TodoElement * int) list; Scope: TodoElement }
+
 [<Struct>]
 type CalendarDay =
     {
         Date: DateOnly
-        Items: TodoElement array
+        Items: CalendarDayItem array
     }
 
     static member Create(date: DateOnly, root: TodoListRoot) : CalendarDay =
@@ -16,16 +18,18 @@ type CalendarDay =
         let inline matches_date (item: TodoElement) : bool =
             item.GetTagValue("date") = Some(ValueSome date_string)
 
-        let results = ResizeArray<TodoElement>()
+        let results = ResizeArray<CalendarDayItem>()
 
-        let rec search (parent: TodoElement) : unit =
-            for item in parent.Items do
+        let rec search (parent: TodoElement, stack: (TodoElement * int) list) : unit =
+            for index = 0 to parent.Items.Count - 1 do
+                let item = parent.Items.[index]
+
                 if matches_date(item) then
-                    results.Add(item)
+                    results.Add({ Item = item; Scope = parent; Stack = stack })
 
-                search(item)
+                search(item, (parent, index) :: stack)
 
-        search(root.RootElement)
+        search(root.RootElement, [])
 
         { Date = date; Items = results.ToArray() }
 
@@ -56,15 +60,21 @@ type CalendarMode =
     }
 
     member this.ToNormalMode() : NormalMode =
-        {
-            Root = this.Root
-            Stack = this.Stack
-            Scope = this.Scope
-            Selection =
-                match this.Selected with
-                | Some item -> Some(this.Scope.Items.IndexOf(item))
-                | None -> None
-        }
+        match this.SelectedCalendarItem with
+        | Some result ->
+            {
+                Root = this.Root
+                Stack = result.Stack
+                Scope = result.Scope
+                Selection = Some(result.Scope.Items.IndexOf(result.Item))
+            }
+        | None ->
+            {
+                Root = this.Root
+                Stack = this.Stack
+                Scope = this.Scope
+                Selection = None
+            }
 
     static member FromNormalMode(nm: NormalMode) : CalendarMode =
         let today = DateOnly.FromDateTime(DateTime.Now)
@@ -94,6 +104,11 @@ type CalendarMode =
     member this.SelectedDay: CalendarDay = this.SelectedWeek.Days.[int this.Day]
 
     member this.Selected: TodoElement option =
+        match this.Selection with
+        | Some index -> Some(this.SelectedDay.Items.[index].Item)
+        | None -> None
+
+    member this.SelectedCalendarItem: CalendarDayItem option =
         match this.Selection with
         | Some index -> Some(this.SelectedDay.Items.[index])
         | None -> None

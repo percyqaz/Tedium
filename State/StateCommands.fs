@@ -29,7 +29,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateRight()
         | Mode.Search sm -> sm.NavigateRight()
-        | Mode.GlobalSearch sm -> state.Open()
+        | Mode.GlobalSearch _ -> state.Open()
         | Mode.Calendar cm -> cm.NavigateRight()
 
     [<Extension>]
@@ -37,7 +37,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.NavigateLeft()
         | Mode.Search sm -> sm.NavigateLeft()
-        | Mode.GlobalSearch sm -> ()
+        | Mode.GlobalSearch _ -> ()
         | Mode.Calendar cm -> cm.NavigateLeft()
 
     [<Extension>]
@@ -83,7 +83,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveUp()
         | Mode.Search sm -> sm.MoveUp()
-        | Mode.GlobalSearch sm -> ()
+        | Mode.GlobalSearch _ -> ()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -93,7 +93,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveDown()
         | Mode.Search sm -> sm.MoveDown()
-        | Mode.GlobalSearch sm -> ()
+        | Mode.GlobalSearch _ -> ()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -103,7 +103,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveRight()
         | Mode.Search sm -> sm.MoveRight()
-        | Mode.GlobalSearch sm -> ()
+        | Mode.GlobalSearch _ -> ()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -113,7 +113,7 @@ type StateCommands =
         match state.Mode with
         | Mode.Normal nm -> nm.MoveLeft()
         | Mode.Search sm -> sm.MoveLeft()
-        | Mode.GlobalSearch sm -> ()
+        | Mode.GlobalSearch _ -> ()
         | Mode.Calendar cm -> state.StatusLine <- "NYI"
 
     [<Extension>]
@@ -202,7 +202,7 @@ type StateCommands =
             | Mode.GlobalSearch sm -> sm.SelectedSearchResult |> Option.map _.Scope
             | Mode.Normal nm -> Some nm.Scope
             | Mode.Search sm -> Some sm.Scope
-            | Mode.Calendar cm -> Some cm.Scope
+            | Mode.Calendar cm -> Some(cm.SelectedCalendarItem |> Option.map _.Scope |> Option.defaultValue cm.Scope)
 
         match scope, state.Mode.Selected with
         | Some scope, None ->
