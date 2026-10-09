@@ -12,6 +12,7 @@
     <Compile Include="CLI\Keymap.fs" />
     <Compile Include="CLI\CommandBuffer.fs" />
     <Compile Include="CLI\TextBuffer.fs" />
+    <Compile Include="CLI\ConfigFile.fs" />
     <Compile Include="GitHub\Issues.fs" />
     <Compile Include="GitHub\GitHub.fs" />
     <Compile Include="TodoList\Tag.fs" />

@@ -12,6 +12,7 @@ type State =
         mutable SearchBufferFocused: bool
         mutable TagColors: Map<string, int>
         mutable StatusLine: string
+        Keymap: Keymap
     }
 
     static member Create(path: string) : State =
@@ -26,6 +27,7 @@ type State =
             SearchBufferFocused = false
             TagColors = Map.empty
             StatusLine = ""
+            Keymap = Keymap()
         }
 
     member this.MarkDirty() : unit = this.Dirty <- true
